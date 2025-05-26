@@ -9,6 +9,7 @@ import FoodProductionSelection from "./FoodProductionSelection";
 import SimpleResourceSelection, { SelectedResourceData } from "./SimpleResourceSelection";
 import CreativeSpaceSelection, { CreativeSpace } from "./CreativeSpaceSelection";
 import Cart from "./Cart";
+import ReceiptPrinter from "./ReceiptPrinter";
 import { useCart, CartItem } from "./CartContext";
 import {
   ProgressBar,
@@ -324,6 +325,48 @@ export default function OffGridCJM() {
     );
     const totalWeeklyTime = totalAvgTime + totalResourceTime;
 
+    // Prepare receipt data
+    const subregion = subregionsData.find((r) => r.id === selectedSubregion)!;
+    
+    // Calculate costs by category
+    const landCost = moneyItems.find(item => item.label.includes("Land"))?.value || 0;
+    const homeCost = moneyItems.find(item => item.label.includes("Home"))?.value || 0;
+    
+    const foodSystemsCost = moneyItems
+      .filter(item => selectedFoodSystems.some(fs => item.label.includes(fs.type)))
+      .reduce((sum, item) => sum + item.value, 0);
+    
+    const resourceSystemsCost = moneyItems
+      .filter(item => selectedResources.some(r => item.label.includes(r.resource.name)))
+      .reduce((sum, item) => sum + item.value, 0);
+    
+    const creativeSpaceCost = moneyItems
+      .filter(item => selectedCreativeSpace && item.label.includes(selectedCreativeSpace.name))
+      .reduce((sum, item) => sum + item.value, 0) || 0;
+    
+    const annualCosts = moneyItems
+      .filter(item => item.label.includes("Annual"))
+      .reduce((sum, item) => sum + item.value, 0);
+
+    const receiptData = {
+      subregion,
+      landCost,
+      homeCost,
+      foodSystemsCost,
+      resourceSystemsCost,
+      creativeSpaceCost,
+      totalCost: total,
+      annualCosts,
+      weeklyHours: totalWeeklyTime,
+      peakHours: totalPeakTime + totalResourceTime,
+      selectedFoodSystems: selectedFoodSystems.map(fs => fs.type),
+      selectedResourceSystems: selectedResources.map(r => r.resource.name),
+      creativeSpace: selectedCreativeSpace?.name || null,
+      familySize,
+      landArea,
+      homeArea,
+    };
+
     return (
       <>
         {renderCart()}
@@ -480,6 +523,9 @@ export default function OffGridCJM() {
                 )}
               </div>
             )}
+
+            {/* Receipt Printer Component */}
+            <ReceiptPrinter receiptData={receiptData} />
           </div>
 
           <div className="text-center mt-12">
