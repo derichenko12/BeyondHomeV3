@@ -295,6 +295,7 @@ export default function OffGridCJM() {
     );
   }
 
+  
   if (step === "receipt") {
     const moneyItems = cartItems.filter((item) => item.type !== "time");
     const timeItems = cartItems.filter((item) => item.type === "time");
@@ -306,6 +307,8 @@ export default function OffGridCJM() {
     );
 
     const total = moneyItems.reduce((sum, item) => sum + item.value, 0);
+    const financialCushion = Math.round(total * 0.3);
+    const totalWithCushion = total + financialCushion;
     const totalAvgTime = avgTimeItems.reduce(
       (sum, item) => sum + item.value,
       0
