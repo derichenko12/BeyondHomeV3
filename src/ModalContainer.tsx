@@ -1,6 +1,7 @@
 // src/ModalContainer.tsx
 import React from "react";
 import { useCart } from "./CartContext";
+import Cart from "./Cart";
 
 interface ModalContainerProps {
   children: React.ReactNode;
@@ -38,67 +39,89 @@ export const ModalContainer: React.FC<ModalContainerProps> = ({
     { id: 'living', label: 'HOME' },
     { id: 'food', label: 'FOOD' },
     { id: 'resources', label: 'RESOURCES' },
-    { id: 'creative', label: 'SPACES' },
+    { id: 'creative', label: 'CREATIVE' },
+    { id: 'receipt', label: 'RECEIPT' },
   ];
 
+  // Get current date in format
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
   return (
-    <div className="fixed inset-0 overflow-hidden">
+    <div className="fixed inset-0 overflow-hidden bg-gray-900">
       {/* Фоновая картинка с блюром */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ 
-          backgroundImage: 'url(/images/background.jpg)',
+          backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2970)',
+          filter: 'blur(20px)',
           transform: 'scale(1.2)'
         }}
       />
       
       {/* Затемнение поверх блюра */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/50" />
       
       {/* Верхняя навигация */}
       <nav className="absolute top-0 left-0 right-0 z-20 p-6 flex justify-between items-start">
         {/* Левый верхний угол - дата и время */}
-        <div className="text-white text-sm">
-          <div>BARCELONA, 29.05.2025</div>
-          <div className="text-xs opacity-70">01:17</div>
+        <div className="text-white text-sm font-light">
+          <div className="tracking-wide">BARCELONA, SPAIN</div>
+          <div className="text-xs opacity-70">{getCurrentDateTime()}</div>
         </div>
         
         {/* Правый верхний угол - две корзины */}
         <div className="flex gap-4">
           {/* Корзина денег */}
-          <div className="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 text-white text-sm">
-            <span className="opacity-70">€</span>
-            <span className="ml-1 font-medium">{totalCost.toLocaleString()}</span>
-          </div>
+          {totalCost > 0 && (
+            <div className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 text-white text-sm flex items-center gap-2">
+              <span className="opacity-70">€</span>
+              <span className="font-light">{totalCost.toLocaleString()}</span>
+            </div>
+          )}
           
           {/* Корзина времени */}
           {totalTime > 0 && (
-            <div className="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 text-white text-sm">
+            <div className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 text-white text-sm flex items-center gap-2">
               <span className="opacity-70">⏱</span>
-              <span className="ml-1 font-medium">{totalTime}h/week</span>
+              <span className="font-light">{totalTime}h/week</span>
             </div>
           )}
         </div>
       </nav>
       
       {/* Нижняя навигация по шагам */}
-      <nav className="absolute bottom-0 left-0 z-20 p-6">
-        <div className="flex gap-6 text-sm font-light">
-          {steps.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => onStepChange && onStepChange(s.id)}
-              className={`
-                transition-all duration-200 tracking-wider
-                ${step === s.id 
-                  ? 'text-white' 
-                  : 'text-white/30 hover:text-white/60'
-                }
-              `}
-            >
-              {s.label}
-            </button>
-          ))}
+      <nav className="absolute bottom-0 left-0 right-0 z-20 p-6">
+        <div className="flex gap-8 text-xs font-light justify-center">
+          {steps.map((s, index) => {
+            const stepOrder = steps.map(st => st.id);
+            const currentIndex = stepOrder.indexOf(step || '');
+            const thisIndex = index;
+            const isAccessible = thisIndex <= currentIndex;
+            
+            return (
+              <button
+                key={s.id}
+                onClick={() => isAccessible && onStepChange && onStepChange(s.id)}
+                disabled={!isAccessible}
+                className={`
+                  transition-all duration-300 tracking-wider uppercase
+                  ${step === s.id 
+                    ? 'text-white font-normal' 
+                    : isAccessible 
+                      ? 'text-white/40 hover:text-white/70 cursor-pointer' 
+                      : 'text-white/20 cursor-not-allowed'
+                  }
+                `}
+              >
+                {s.label}
+              </button>
+            );
+          })}
         </div>
       </nav>
       
@@ -106,29 +129,45 @@ export const ModalContainer: React.FC<ModalContainerProps> = ({
       <div className="relative z-10 flex items-center justify-center min-h-screen p-8">
         {/* Контейнер с градиентной обводкой */}
         <div 
-          className="relative rounded-[30px] p-[0.5px]"
+          className="relative rounded-3xl p-[1px] max-w-4xl w-full"
           style={{
-            background: 'linear-gradient(195deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%)',
-            maxWidth: '768px',
-            width: '100%'
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%)',
           }}
         >
           {/* Внутренний контейнер */}
           <div 
-            className="rounded-[30px] overflow-hidden"
+            className="rounded-3xl overflow-hidden"
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.4)',
-              backdropFilter: 'blur(86px)',
-              WebkitBackdropFilter: 'blur(86px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(40px)',
+              WebkitBackdropFilter: 'blur(40px)',
             }}
           >
             {/* Контент */}
-            <div className="relative p-8 md:p-12 max-h-[70vh] overflow-y-auto">
+            <div className="relative p-8 md:p-12 max-h-[75vh] overflow-y-auto custom-scrollbar">
               {children}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Стили для кастомного скролла */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      `}</style>
     </div>
   );
 };

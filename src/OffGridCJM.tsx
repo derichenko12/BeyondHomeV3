@@ -61,23 +61,29 @@ export default function OffGridCJM() {
     window.scrollTo(0, 0);
   }, [step]);
 
+  // Function to handle step changes from navigation
+  const handleStepChange = (newStep: string) => {
+    // Only allow going to previous steps or the current step
+    const stepOrder: StepType[] = ["welcome", "tags", "subregions", "family", "land", "living", "food", "resources", "creative", "receipt"];
+    const currentIndex = stepOrder.indexOf(step);
+    const newIndex = stepOrder.indexOf(newStep as StepType);
+    
+    if (newIndex <= currentIndex && newIndex >= 0) {
+      setStep(newStep as StepType);
+    }
+  };
+
   // ОБЕРТКА ВСЕГО КОНТЕНТА В MODAL CONTAINER
   return (
-    <ModalContainer step={step}>
+    <ModalContainer step={step} onStepChange={handleStepChange}>
       {step === "welcome" && (
         <div>
-          <ProgressBar
-            currentStep={STEPS.WELCOME.number}
-            totalSteps={STEPS.WELCOME.total}
-            stepLabel={STEPS.WELCOME.label}
-          />
-
           <PageHeader
             title="Start your Off-Grid Journey"
             subtitle="Choose the life you want to live — sustainable, free, and close to nature. This calculator helps you build your off-grid life from scratch: land, food, energy, housing."
           />
 
-          <div className="text-center">
+          <div className="text-center mt-8">
             <Button onClick={() => setStep("tags")}>Begin</Button>
           </div>
         </div>
@@ -310,20 +316,14 @@ export default function OffGridCJM() {
         };
 
         return (
-          <PageLayout>
-            <ProgressBar
-              currentStep={STEPS.RECEIPT.number}
-              totalSteps={STEPS.RECEIPT.total}
-              stepLabel={STEPS.RECEIPT.label}
-            />
-
+          <div>
             <PageHeader
               title="Your Off-Grid Plan"
               subtitle="Complete summary of your personalized off-grid setup."
             />
 
             <div className="max-w-2xl mx-auto">
-              <div className="border border-black p-8">
+              <div className="border border-black p-8 bg-white/60 backdrop-blur-sm">
                 <h3 className="text-base font-medium mb-6">Investment Breakdown</h3>
                 <div className="space-y-3">
                   {moneyItems.map((item, index) => (
@@ -342,7 +342,7 @@ export default function OffGridCJM() {
               </div>
 
               {(avgTimeItems.length > 0 || resourceTimeItems.length > 0) && (
-                <div className="border border-black p-8 mt-6">
+                <div className="border border-black p-8 mt-6 bg-white/60 backdrop-blur-sm">
                   <h4 className="text-base font-medium mb-4">Time Commitment</h4>
                   <div className="space-y-2">
                     {avgTimeItems.map((item, index) => {
@@ -396,7 +396,7 @@ export default function OffGridCJM() {
                 Start Over
               </Button>
             </div>
-          </PageLayout>
+          </div>
         );
       })()}
     </ModalContainer>
