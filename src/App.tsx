@@ -1,5 +1,7 @@
+// src/App.tsx
 import React, { Suspense, lazy } from "react";
 import { CartProvider } from "./CartContext";
+import Cart from "./Cart";
 
 // Lazy load the main component
 const OffGridCJM = lazy(() => import("./OffGridCJM"));
@@ -16,14 +18,13 @@ const Loading = () => (
   </div>
 );
 
+// src/App.tsx
 function App() {
   return (
     <CartProvider>
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <Suspense fallback={<Loading />}>
-          <OffGridCJM />
-        </Suspense>
-      </div>
+      <Suspense fallback={<Loading />}>
+        <OffGridCJM />
+      </Suspense>
     </CartProvider>
   );
 }
