@@ -15,13 +15,11 @@ export interface CreativeSpace {
   minCost: number;
   maxCost: number;
   area: number;
-  icon: string;
 }
 
 interface CustomSpace {
   name: string;
   budget: number;
-  icon: string;
 }
 
 interface Props {
@@ -39,7 +37,6 @@ const templates: CreativeSpace[] = [
     minCost: 2500,
     maxCost: 4000,
     area: 16,
-    icon: "🎙️",
   },
   {
     id: "pottery-studio",
@@ -48,7 +45,6 @@ const templates: CreativeSpace[] = [
     minCost: 3000,
     maxCost: 5000,
     area: 20,
-    icon: "🏺",
   },
   {
     id: "writing-cabin",
@@ -57,7 +53,6 @@ const templates: CreativeSpace[] = [
     minCost: 1120,
     maxCost: 1120,
     area: 12,
-    icon: "✍️",
   },
   {
     id: "sport-yoga",
@@ -66,7 +61,6 @@ const templates: CreativeSpace[] = [
     minCost: 1500,
     maxCost: 3000,
     area: 20,
-    icon: "🧘",
   },
   {
     id: "zen-garden",
@@ -75,7 +69,6 @@ const templates: CreativeSpace[] = [
     minCost: 800,
     maxCost: 1800,
     area: 12,
-    icon: "🪴",
   },
   {
     id: "chilling-pond",
@@ -84,11 +77,8 @@ const templates: CreativeSpace[] = [
     minCost: 1500,
     maxCost: 3000,
     area: 10,
-    icon: "💧",
   },
 ];
-
-const emojiOptions = ["🎨", "🎵", "📚", "🎭", "🎬", "🎸", "🖌️", "📷", "🎯", "🏹", "🎲", "🧩"];
 
 export default function CreativeSpaceSelection({
   onContinue,
@@ -101,7 +91,6 @@ export default function CreativeSpaceSelection({
   const [customSpace, setCustomSpace] = useState<CustomSpace>({
     name: "",
     budget: 0,
-    icon: "🎨",
   });
   const [skipSpace, setSkipSpace] = useState(false);
 
@@ -127,7 +116,7 @@ export default function CreativeSpaceSelection({
     }
     
     onUpdateCart([...existingCartItems, ...cartItems]);
-  }, [selectedTemplate, showCustomForm, customSpace]);
+  }, [selectedTemplate, showCustomForm, customSpace, existingCartItems, onUpdateCart]);
 
   const handleContinue = () => {
     if (skipSpace) {
@@ -172,7 +161,7 @@ export default function CreativeSpaceSelection({
             }}
             className="w-4 h-4"
           />
-          <span className="text-sm">Skip creative space (I'll figure this out later)</span>
+          <span className="text-[10px] font-mono">Skip creative space (I'll figure this out later)</span>
         </label>
       </div>
 
@@ -192,68 +181,46 @@ export default function CreativeSpaceSelection({
                   ? "border-black bg-gray-50"
                   : "border-gray-300 hover:border-black"
               }`}
+              style={{ borderWidth: '0.5px' }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">{customSpace.icon}</span>
-                <h4 className="text-sm font-medium">Create your own space</h4>
+                <h4 className="text-[10px] font-mono uppercase">CREATE YOUR OWN SPACE</h4>
               </div>
               
               {!showCustomForm ? (
-                <p className="text-xs text-gray-600">
+                <p className="text-[10px] font-mono text-gray-600">
                   Have something else in mind? Design your own creative space.
                 </p>
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium block mb-2">
-                      What's the name?
+                    <label className="text-[10px] font-mono uppercase block mb-2">
+                      WHAT'S THE NAME?
                     </label>
                     <input
                       type="text"
                       value={customSpace.name}
                       onChange={(e) => setCustomSpace({ ...customSpace, name: e.target.value })}
                       placeholder="Enter the name of your space"
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:border-black focus:outline-none"
+                      className="w-full px-3 py-2 border border-gray-300 text-[10px] font-mono focus:border-black focus:outline-none"
                       onClick={(e) => e.stopPropagation()}
+                      style={{ borderWidth: '0.5px' }}
                     />
                   </div>
                   
                   <div>
-                    <label className="text-xs font-medium block mb-2">
-                      What's the budget?
+                    <label className="text-[10px] font-mono uppercase block mb-2">
+                      WHAT'S THE BUDGET?
                     </label>
                     <input
                       type="number"
                       value={customSpace.budget || ""}
                       onChange={(e) => setCustomSpace({ ...customSpace, budget: parseInt(e.target.value) || 0 })}
                       placeholder="0"
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:border-black focus:outline-none"
+                      className="w-full px-3 py-2 border border-gray-300 text-[10px] font-mono focus:border-black focus:outline-none"
                       onClick={(e) => e.stopPropagation()}
+                      style={{ borderWidth: '0.5px' }}
                     />
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium block mb-2">
-                      Pick emoji
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {emojiOptions.map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCustomSpace({ ...customSpace, icon: emoji });
-                          }}
-                          className={`w-10 h-10 flex items-center justify-center border-2 transition-all ${
-                            customSpace.icon === emoji
-                              ? "border-black bg-gray-100"
-                              : "border-gray-300 hover:border-gray-400"
-                          }`}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
               )}
@@ -261,8 +228,8 @@ export default function CreativeSpaceSelection({
           </div>
 
           {/* Templates */}
-          <div className="border-t border-gray-300 pt-8">
-            <h3 className="text-base font-medium mb-6">Templates</h3>
+          <div className="border-t border-gray-300 pt-8" style={{ borderWidth: '0.5px' }}>
+            <h3 className="text-[16px] font-mono uppercase mb-6">TEMPLATES</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {templates.map((template) => (
                 <div
@@ -281,19 +248,17 @@ export default function CreativeSpaceSelection({
                       ? "border-black bg-gray-50"
                       : "border-gray-300 hover:border-black"
                   }`}
+                  style={{ borderWidth: '0.5px' }}
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{template.icon}</span>
-                      <h4 className="text-sm font-medium">{template.name}</h4>
-                    </div>
+                    <h4 className="text-[10px] font-mono uppercase">{template.name}</h4>
                   </div>
                   
-                  <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+                  <p className="text-[10px] font-mono text-gray-600 mb-4 leading-relaxed">
                     {template.description}
                   </p>
                   
-                  <div className="flex justify-between items-center text-xs">
+                  <div className="flex justify-between items-center text-[10px] font-mono">
                     <span className="text-gray-500">
                       €{template.minCost.toLocaleString()}-€{template.maxCost.toLocaleString()}
                     </span>
@@ -301,8 +266,8 @@ export default function CreativeSpaceSelection({
                   </div>
                   
                   {selectedTemplate === template.id && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="text-xs font-medium text-green-700">✓ Selected</div>
+                    <div className="mt-4 pt-4 border-t border-gray-200" style={{ borderWidth: '0.5px' }}>
+                      <div className="text-[10px] font-mono uppercase text-black">✓ SELECTED</div>
                     </div>
                   )}
                 </div>

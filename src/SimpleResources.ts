@@ -21,6 +21,7 @@ export interface SimpleResource {
     name: string;
     setupCost: number;
     annualCost: number;
+    description?: string;
   }[];
 }
 
@@ -55,6 +56,40 @@ export const categoryInfo: Record<ResourceCategory, {
 // Base resources available everywhere
 export const simpleResources: SimpleResource[] = [
   // ========== ENERGY ==========
+  {
+    id: "grid-connection",
+    name: "Grid Connection",
+    description: "Connect to the local electricity network. Most reliable option while you build other systems. Can later add solar/wind and sell excess back to grid.",
+    category: "energy",
+    setupCost: 3000,
+    annualCost: 1200,
+    weeklyHours: 0,
+    availableFor: ["ALL"],
+    icon: "🔌",
+    variants: [
+      { 
+        id: "basic", 
+        name: "Basic connection (15A)", 
+        setupCost: 3000, 
+        annualCost: 1200,
+        description: "For tiny homes & minimal use. Powers lights, laptop, fridge, basic cooking."
+      },
+      { 
+        id: "standard", 
+        name: "Standard (25A)", 
+        setupCost: 4000, 
+        annualCost: 1800,
+        description: "Most common choice. Runs normal household: appliances, tools, heating."
+      },
+      { 
+        id: "high", 
+        name: "High capacity (35A+)", 
+        setupCost: 6000, 
+        annualCost: 2400,
+        description: "For large homes or workshops. Heavy machinery, electric heating, EV charging."
+      },
+    ],
+  },
   {
     id: "solar-basic",
     name: "Solar Power System",
@@ -299,6 +334,16 @@ export function calculateResourceCosts(
     if (familySize <= 2) setupMultiplier = 0.7;
     else if (familySize <= 4) setupMultiplier = 1.0;
     else setupMultiplier = 1.3;
+  }
+  
+  // Scale grid connection electricity costs by family size and home size
+  if (resource.id === "grid-connection") {
+    // Annual cost scales with both family and home size
+    const familyFactor = familySize <= 2 ? 0.7 : familySize <= 4 ? 1.0 : 1.3;
+    const homeFactor = homeSize <= 50 ? 0.8 : homeSize <= 100 ? 1.0 : 1.2;
+    annualMultiplier = familyFactor * homeFactor;
+    // Setup cost doesn't change much
+    setupMultiplier = 1.0;
   }
   
   return {

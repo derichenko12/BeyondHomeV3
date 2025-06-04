@@ -111,35 +111,36 @@ export default function LandSizeSlider({
               </div>
             </div>
 
-            {/* Slider */}
-            <div className="relative">
+           {/* Slider */}
+           <div className="relative">
               <style
                 dangerouslySetInnerHTML={{
                   __html: `
                     .land-slider::-webkit-slider-thumb {
                       appearance: none;
-                      width: 20px;
-                      height: 20px;
-                      background: white;
-                      border: 2px solid black;
-                      border-radius: 50%;
+                      width: 2px;
+                      height: 24px;
+                      background: black;
                       cursor: pointer;
                       position: relative;
                       z-index: 2;
                     }
                     .land-slider::-moz-range-thumb {
-                      width: 20px;
-                      height: 20px;
-                      background: white;
-                      border: 2px solid black;
-                      border-radius: 50%;
+                      width: 2px;
+                      height: 24px;
+                      background: black;
+                      border: none;
                       cursor: pointer;
                       position: relative;
                       z-index: 2;
                     }
+                    .land-slider::-webkit-slider-runnable-track {
+                      height: 1px;
+                      background: black;
+                    }
                     .land-slider::-moz-range-track {
-                      background: transparent;
-                      border: none;
+                      height: 1px;
+                      background: black;
                     }
                   `,
                 }}
@@ -151,10 +152,7 @@ export default function LandSizeSlider({
                 step={250}
                 value={area}
                 onChange={(e) => setArea(Number(e.target.value))}
-                className="land-slider w-full h-1 bg-gray-200 appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #000 0%, #000 ${percentage}%, #e5e7eb ${percentage}%, #e5e7eb 100%)`,
-                }}
+                className="land-slider w-full h-6 bg-transparent appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-2">
                 <span>0.1 ha</span>

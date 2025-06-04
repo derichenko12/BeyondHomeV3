@@ -6,7 +6,7 @@ const OffGridCJM = lazy(() => import("./OffGridCJM"));
 
 // Loading component
 const Loading = () => (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+  <div className="min-h-screen bg-white flex items-center justify-center">
     <div className="text-center">
       <div className="animate-pulse">
         <div className="h-4 w-48 bg-gray-300 rounded mb-2"></div>
@@ -19,7 +19,7 @@ const Loading = () => (
 function App() {
   return (
     <CartProvider>
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Suspense fallback={<Loading />}>
           <OffGridCJM />
         </Suspense>

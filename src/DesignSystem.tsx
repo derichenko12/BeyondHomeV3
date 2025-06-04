@@ -1,13 +1,15 @@
 import React from "react";
 
 // ========================
-// RADICAL MINIMALISM SYSTEM
-// Only typography, spacing, composition
+// WIREFRAME DESIGN SYSTEM
+// Monospace only, 10px and 16px, minimal strokes
 // ========================
 
 const TYPE = {
-  small: "text-xs leading-relaxed", // 12px - body text, labels
-  base: "text-base leading-relaxed", // 16px - headers, emphasis
+  small: "text-[10px] font-mono leading-relaxed", // 10px - body text, labels
+  base: "text-[16px] font-mono leading-relaxed", // 16px - headers
+  smallCaps: "text-[10px] font-mono uppercase tracking-wider", // 10px uppercase
+  baseCaps: "text-[16px] font-mono uppercase tracking-wider", // 16px uppercase
 } as const;
 
 // ========================
@@ -26,7 +28,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   stepLabel,
 }) => {
   return (
-    <div className="flex justify-between items-center py-8 border-b border-black">
+    <div className="flex justify-between items-center py-8 border-b border-black" style={{ borderWidth: '0.5px' }}>
       <div className="flex space-x-1">
         {Array.from({ length: totalSteps }).map((_, index) => (
           <div
@@ -37,7 +39,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           />
         ))}
       </div>
-      <div className={`${TYPE.small} uppercase tracking-wider`}>
+      <div className={`${TYPE.smallCaps}`}>
         {stepLabel} {currentStep}/{totalSteps}
       </div>
     </div>
@@ -56,7 +58,7 @@ interface PageHeaderProps {
 export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle }) => {
   return (
     <div className="py-12">
-      <h1 className={`${TYPE.base} font-medium mb-4 max-w-2xl`}>{title}</h1>
+      <h1 className={`${TYPE.baseCaps} mb-4 max-w-2xl`}>{title}</h1>
       {subtitle && (
         <p className={`${TYPE.small} text-gray-600 max-w-xl`}>{subtitle}</p>
       )}
@@ -79,7 +81,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 }) => {
   const maxWidthClass = maxWidth === "6xl" ? "max-w-6xl" : "max-w-4xl";
   return (
-    <div className={`${maxWidthClass} mx-auto px-8 pb-16`}>{children}</div>
+    <div className={`${maxWidthClass} mx-auto px-8 pb-16 font-mono`}>{children}</div>
   );
 };
 
@@ -88,7 +90,7 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({ children }) => {
-  return <div className="border border-black p-8 my-8">{children}</div>;
+  return <div className="border border-black p-8 my-8" style={{ borderWidth: '0.5px' }}>{children}</div>;
 };
 
 // ========================
@@ -108,9 +110,9 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   fullWidth = false,
 }) => {
-  const baseClasses = `${TYPE.small} border border-black px-6 py-3 transition-colors`;
+  const baseClasses = `${TYPE.smallCaps} border border-black px-6 py-3 transition-colors`;
   const stateClasses = disabled
-    ? "text-gray-400 border-gray-200 cursor-not-allowed"
+    ? "text-gray-400 border-gray-400 cursor-not-allowed"
     : "hover:bg-black hover:text-white";
   const widthClasses = fullWidth ? "w-full" : "";
 
@@ -119,6 +121,7 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       className={`${baseClasses} ${stateClasses} ${widthClasses}`}
+      style={{ borderWidth: '0.5px' }}
     >
       {children}
     </button>
@@ -146,9 +149,10 @@ export const TagButton: React.FC<TagButtonProps> = ({
         selected
           ? "bg-black text-white border-black"
           : disabled
-          ? "text-gray-400 border-gray-200 cursor-not-allowed"
-          : "border-gray-300 hover:border-black"
+          ? "text-gray-400 border-gray-400 cursor-not-allowed"
+          : "border-gray-400 hover:border-black"
       }`}
+      style={{ borderWidth: '0.5px' }}
     >
       {label}
     </button>
@@ -181,14 +185,15 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       className={`border cursor-pointer transition-colors p-8 ${
         selected
           ? "border-black bg-gray-50"
-          : "border-gray-300 hover:border-black"
+          : "border-gray-400 hover:border-black"
       }`}
+      style={{ borderWidth: '0.5px' }}
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-6">
-        <h3 className={`${TYPE.base} font-medium`}>{title}</h3>
+        <h3 className={`${TYPE.baseCaps}`}>{title}</h3>
         {badge && (
-          <div className={`${TYPE.small} px-3 py-1 bg-black text-white`}>
+          <div className={`${TYPE.smallCaps} px-3 py-1 bg-black text-white`}>
             {badge}
           </div>
         )}
@@ -214,7 +219,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
 }) => {
   return (
     <div className="mb-8">
-      <h2 className={`${TYPE.base} font-medium mb-4`}>{title}</h2>
+      <h2 className={`${TYPE.baseCaps} mb-4`}>{title}</h2>
       <div className="flex flex-wrap gap-3">{children}</div>
     </div>
   );
@@ -239,10 +244,11 @@ export const QuickOption: React.FC<QuickOptionProps> = ({
       className={`p-6 border transition-colors text-left ${
         selected
           ? "border-black bg-gray-50"
-          : "border-gray-300 hover:border-black"
+          : "border-gray-400 hover:border-black"
       }`}
+      style={{ borderWidth: '0.5px' }}
     >
-      <div className={`${TYPE.base} font-medium mb-2`}>{label}</div>
+      <div className={`${TYPE.smallCaps} mb-2`}>{label}</div>
       <div className={`${TYPE.small} text-gray-600`}>{description}</div>
     </button>
   );
@@ -255,8 +261,8 @@ interface SummaryBoxProps {
 
 export const SummaryBox: React.FC<SummaryBoxProps> = ({ title, children }) => {
   return (
-    <div className="border border-black p-8 my-8">
-      <h4 className={`${TYPE.base} font-medium mb-4`}>{title}</h4>
+    <div className="border border-black p-8 my-8" style={{ borderWidth: '0.5px' }}>
+      <h4 className={`${TYPE.baseCaps} mb-4`}>{title}</h4>
       {children}
     </div>
   );

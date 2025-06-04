@@ -41,7 +41,7 @@ export const subregionsData: Subregion[] = [
     region: "Southern Europe",
     landscape: ["Mountains", "Coastline", "Meadow"],
     climate: ["Sufficient Sun", "Mild"],
-    energy: ["High Solar"],
+    energy: ["High Solar", "High Wind"], // Added High Wind for coastal areas
     description: `Hottest summers in Europe & mild winters. Get's really dry for long times, so one must to think strategically about water & irrigation resources. Historically, people have grown lots of olives here. It is an interesting region for hikes. You have both snowy mountains, some lush forests, deserts and beautiful beaches. In spring hills gets covered with lavander and poppy.
   
   Traditional white Spanish villages, lots of Flamenco and a really slow-paced life. White-stone houses, flat roofs. In big cities like Granada, Cordova, Sevilla you'll see a lot of ancient Moorish architecture.`,
@@ -323,7 +323,7 @@ export const subregionsData: Subregion[] = [
     region: "Western Europe",
     landscape: ["Mountains", "Meadow", "Rivers", "Coastline", "Lakes"],
     climate: ["Sufficient Sun", "Mild"],
-    energy: [],
+    energy: ["High Solar", "High Wind"], // Added both - mistral winds are famous here
     description: `It's not just lavender fields, and olives. And village life is still very active here — many make press their own oil, bake the bread, locals drink espresso and read the newspaper in the morning. Stone walls help to keep out the summer heat, and small windows hold the warmth during winter. Younger people come here to learn to build and make things. Some create eco-farms, co-living spaces. It is also an active place that looks for volunteers. There are many places to stay for free at Workaway.
   
   Overall it's a very nice place, but kind of pricey.`,
@@ -399,7 +399,7 @@ export const subregionsData: Subregion[] = [
     region: "Western Europe",
     landscape: ["Meadow", "Coastline", "Forests", "Rivers", "Lakes"],
     climate: ["Cloudy", "Mild"],
-    energy: [],
+    energy: ["High Wind"], // Atlantic coast = strong winds
     description:
       "Brittany is a nice northwest coastline. It's quite harsh and raw, a bit wild & untamed here. Waves hit the jagged cliffs and epic lighthouses stand on top of them. No meditarian resorts for pussies, only fisherman huts, mythical forests, and old way of doing things. And huge boulders. Definitely not a place for everyone. But all this harshness gives a special nutrition value to the food that grows here.",
     vegetables: [
@@ -473,7 +473,7 @@ export const subregionsData: Subregion[] = [
     region: "Western Europe",
     landscape: ["Mountains", "Meadow", "Forests", "Lakes"],
     climate: ["Sufficient Sun", "Cold Winters"],
-    energy: ["High Wind", "Hydroelectric Potential"],
+    energy: ["High Wind", "Hydroelectric Potential"], // Mountain winds + alpine hydro
     description:
       "Picture Alps, crystal-clear lakes, highland forests and thick stone walls of the farmhouses in the valley. Peace and tranquility. It is a place where sustainability became integrated into local life long before it became trendy. It is place filled with deep respect for the nature and each other. Cold winters and mountain climate taught local communities to rely on themselves and design stable homestead systems. It will suit for those who find mountains to be a crystal-clear source of inspiration. The region also serves as a great source of inspiration of mature, well-designed living systems, often based on traditional crafts.",
     vegetables: ["Root Vegetables", "Cabbage"],
@@ -541,7 +541,7 @@ export const subregionsData: Subregion[] = [
     region: "Western Europe",
     landscape: ["Meadow", "Forests", "Rivers", "Lakes"],
     climate: ["Cloudy", "Cold Winters"],
-    energy: ["High Wind", "Hydroelectric Potential"],
+    energy: ["High Wind"], // Flat lands = good wind
     description:
       "First thing you need to know about this region — it is a place with a really cheap land. First it seems flat and empty, but with enough research one will discover just how many eco-hubs and permaculture projects are around here. It is a true playground for any homestead enthusiast or eco-entrepreneur. Young people go there to find & build communities. It is also pretty close to Berlin, so why don't give it a shot?",
     vegetables: ["Vegetables"],
@@ -677,7 +677,7 @@ export const subregionsData: Subregion[] = [
     region: "Central Europe",
     landscape: ["Forests", "Lakes", "Meadow", "Rivers"],
     climate: ["Cloudy", "Cold Winters"],
-    energy: ["High Wind", "Hydroelectric Potential"],
+    energy: ["High Wind"], // Moderate winds in open areas
     description:
       "The land of traditional craftsmanship and old-school living. People don't come here to launch yoga-eco-retreats — they come to buy a beautiful old farm to renovate it. No hype, no rush. Locals that respect people who contribute with skills, not personal brand. Villages are small, practical, and community-based.\n\nThis is a region of water and forest: lakes, rivers, ponds, even swamps. Forests are filled with edible mushrooms, wild herbs, and firewood. This gives extra reason to spend your morning in the forest instead of a fancy cafe.\n\nLocals still preserve food, dry apples, keep goats, and work with wood. Great place to learn traditional ways of getting the job done — simply, efficiently and through the craftsmanship.",
     vegetables: ["Vegetables", "Root Vegetables", "Cabbage"],
@@ -745,7 +745,7 @@ export const subregionsData: Subregion[] = [
     region: "Northern Europe",
     landscape: ["Forests", "Lakes", "Rivers"],
     climate: ["Cold Winters"],
-    energy: [],
+    energy: [], // Limited renewable options in forested areas
     description:
       "Dalarna is one of Sweden's most active regions for permaculture and back-to-the-land living. People come here to recover, rebuild, and do real things with their hands. It's quiet, vast, and slow. Lakes stretch for kilometers and pine forests surround you everywhere. Great region for winter fans and those who enjoy chopping the firewood.",
     vegetables: ["Root Vegetables", "Cabbage"],

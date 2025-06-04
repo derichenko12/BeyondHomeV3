@@ -48,6 +48,28 @@ export default function LivingSpaceSelection({
 
   const homeArea = calculateHomeArea(homePrice);
 
+  // Calculate infrastructure space dynamically
+  const calculateInfrastructureSpace = (landArea: number, homeArea: number): number => {
+    // Base infrastructure: 10% of home area
+    const baseInfrastructure = homeArea * 0.1;
+    
+    // Pathways and roads: 2% of total land area
+    const pathways = landArea * 0.02;
+    
+    // Area around home (terrace, entrance, parking): 20% of home area
+    const aroundHome = homeArea * 0.2;
+    
+    // Utilities (septic, well, technical zones): minimum 50 m²
+    const utilities = 50;
+    
+    return Math.round(baseInfrastructure + pathways + aroundHome + utilities);
+  };
+
+  const infrastructureSpace = calculateInfrastructureSpace(landArea, homeArea);
+  const totalUsedSpace = homeArea + infrastructureSpace;
+  const remainingSpace = landArea - totalUsedSpace;
+  const usagePercentage = (totalUsedSpace / landArea) * 100;
+
   // Handle price change and update cart
   const handlePriceChange = (newPrice: number) => {
     setHomePrice(newPrice);
@@ -174,30 +196,31 @@ export default function LivingSpaceSelection({
             <style
               dangerouslySetInnerHTML={{
                 __html: `
-                  .home-slider::-webkit-slider-thumb {
+                  .land-slider::-webkit-slider-thumb {
                     appearance: none;
-                    width: 16px;
-                    height: 16px;
-                    background: white;
-                    border: 2px solid black;
-                    border-radius: 50%;
+                    width: 2px;
+                    height: 24px;
+                    background: black;
                     cursor: pointer;
                     position: relative;
                     z-index: 2;
                   }
-                  .home-slider::-moz-range-thumb {
-                    width: 16px;
-                    height: 16px;
-                    background: white;
-                    border: 2px solid black;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    position: relative;
-                    z-index: 2;
-                  }
-                  .home-slider::-moz-range-track {
-                    background: transparent;
+                  .land-slider::-moz-range-thumb {
+                    width: 2px;
+                    height: 24px;
+                    background: black;
                     border: none;
+                    cursor: pointer;
+                    position: relative;
+                    z-index: 2;
+                  }
+                  .land-slider::-webkit-slider-runnable-track {
+                    height: 1px;
+                    background: black;
+                  }
+                  .land-slider::-moz-range-track {
+                    height: 1px;
+                    background: black;
                   }
                 `,
               }}
@@ -239,8 +262,73 @@ export default function LivingSpaceSelection({
           </div>
         </div>
 
-        {/* Right: Cost summary */}
+        {/* Right: Cost summary and land usage */}
         <div className="space-y-8">
+          {/* Land usage visualization */}
+          <div className="border border-black p-8">
+            <div className="text-base font-medium mb-6">Land Usage</div>
+            
+            {/* Progress bar style visualization */}
+            <div className="mb-4">
+              <div className="flex justify-between text-xs mb-2">
+                <span>Space used</span>
+                <span>
+                  {totalUsedSpace.toLocaleString()} / {landArea.toLocaleString()} m²
+                </span>
+              </div>
+              <div className="w-full h-3 bg-gray-200 relative">
+                <div
+                  className="absolute left-0 top-0 h-full bg-black transition-all"
+                  style={{
+                    width: `${Math.min(100, usagePercentage)}%`,
+                  }}
+                />
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {usagePercentage.toFixed(1)}% of total land
+              </div>
+            </div>
+
+            {/* Breakdown */}
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span>Home footprint</span>
+                <span className="font-medium">{homeArea} m²</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Infrastructure breakdown:</span>
+              </div>
+              <div className="pl-4 space-y-1 text-gray-500">
+                <div className="flex justify-between">
+                  <span>• Pathways</span>
+                  <span>{Math.round(landArea * 0.02)} m²</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Around home</span>
+                  <span>{Math.round(homeArea * 0.2)} m²</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Utilities</span>
+                  <span>50 m²</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Technical</span>
+                  <span>{Math.round(homeArea * 0.1)} m²</span>
+                </div>
+              </div>
+              <div className="border-t border-gray-300 pt-2">
+                <div className="flex justify-between font-medium">
+                  <span>Total used</span>
+                  <span>{totalUsedSpace.toLocaleString()} m²</span>
+                </div>
+                <div className="flex justify-between text-green-700">
+                  <span>Available for food</span>
+                  <span>{remainingSpace.toLocaleString()} m²</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Total cost summary */}
           <div className="border border-black p-8">
             <div className="text-base font-medium mb-6">Investment Summary</div>
@@ -285,7 +373,7 @@ export default function LivingSpaceSelection({
         {onBack && <Button onClick={onBack}>← Back</Button>}
         <div className={onBack ? "" : "ml-auto"}>
           <Button onClick={() => onContinue(totalHomeCost, homeArea)}>
-            Continue with €{totalHomeCost.toLocaleString()} home
+            Continue with €{totalHomeCost.toLocaleString()} home ({remainingSpace.toLocaleString()} m² left for food)
           </Button>
         </div>
       </div>

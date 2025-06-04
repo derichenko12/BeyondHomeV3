@@ -37,393 +37,369 @@ interface Props {
 export default function ReceiptPrinter({ receiptData }: Props) {
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const formatReceipt = () => {
-    const lines: string[] = [];
-    const lineWidth = 28; // Increased for 58mm printer (was 32)
+  // Helper to format numbers
+  const formatNumber = (num: number): string => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // Helper to format line with dots
+  const formatLine = (label: string, value: string, width: number = 36) => {
+    const totalLength = width;
+    const labelLength = label.length;
+    const valueLength = value.length;
+    const dotsNeeded = totalLength - labelLength - valueLength;
     
-    // Helper to format number without spaces
-    const formatNumber = (num: number): string => {
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    };
+    if (dotsNeeded < 2) {
+      // If not enough space, truncate label
+      const maxLabel = totalLength - valueLength - 2;
+      return label.substring(0, maxLabel) + ".." + value;
+    }
     
-    // Helper to center text
-    const center = (text: string) => {
-      if (text.length >= lineWidth) return text.substring(0, lineWidth);
-      const padding = Math.floor((lineWidth - text.length) / 2);
-      return " ".repeat(Math.max(0, padding)) + text;
-    };
-    
-    // Helper to format line with dots
-    const formatLine = (label: string, value: string) => {
-      // Remove any spaces from value for consistent formatting
-      value = value.replace(/\s/g, '');
-      
-      // Calculate available space
-      const totalLength = lineWidth;
-      const valueLength = value.length;
-      const minDots = 2;
-      
-      // If value is too long, just return truncated version
-      if (valueLength >= totalLength - minDots - 2) {
-        console.warn(`Value too long: ${value} (${valueLength} chars)`);
-        return label.substring(0, 10) + ".." + value;
-      }
-      
-      const maxLabelLength = totalLength - valueLength - minDots;
-      
-      // Truncate label if too long
-      if (label.length > maxLabelLength) {
-        label = label.substring(0, maxLabelLength);
-      }
-      
-      // Calculate dots to fill the space
-      const dotsCount = totalLength - label.length - valueLength;
-      const dots = ".".repeat(Math.max(minDots, dotsCount));
-      
-      const result = label + dots + value;
-      
-      // Final safety check
-      return result.substring(0, lineWidth);
-    };
-    
-    // Helper to wrap text
-    const wrapText = (text: string, maxWidth: number = lineWidth): string[] => {
-      const words = text.split(' ');
-      const wrapped: string[] = [];
-      let currentLine = '';
-      
-      words.forEach(word => {
-        if (currentLine.length + word.length + 1 > maxWidth) {
-          if (currentLine) wrapped.push(currentLine.trim());
-          currentLine = word + ' ';
-        } else {
-          currentLine += word + ' ';
-        }
-      });
-      
-      if (currentLine.trim()) wrapped.push(currentLine.trim());
-      return wrapped;
-    };
-    
-    // Calculate financial cushion (30% of total)
+    return label + ".".repeat(dotsNeeded) + value;
+  };
+
+  // Generate HTML receipt
+  const generateHTMLReceipt = () => {
     const financialCushion = Math.round(receiptData.totalCost * 0.3);
     const totalWithCushion = receiptData.totalCost + financialCushion;
-    
-    // Add BOM for proper encoding
-    lines.push('\uFEFF'); // UTF-8 BOM
-    
-    // 1. DISCLAIMER
-    lines.push(center("OFF-GRID REALITY CHECK"));
-    lines.push(center("========================================"));
-    lines.push("");
-    lines.push(center("BEFORE YOU START"));
-    lines.push("");
-    
-    const disclaimerText = "Living off-grid is not a romantic escape. It's hard work, endless projects, and serious time commitment. This lifestyle means building every system from the ground up. You might face regulations, isolation, climate challenges, and daily maintenance. But done right, you'll have something rare: life on your terms.";
-    
-    wrapText(disclaimerText).forEach(line => lines.push(line));
-    lines.push("");
-    lines.push("----------------------------------------");
-    lines.push("");
-    
-    // 2. SELECTED REGION
-    lines.push(center("YOUR CHOSEN LAND"));
-    lines.push(center(receiptData.subregion.name.toUpperCase()));
-    lines.push(center(receiptData.subregion.country));
-    lines.push("");
-    
-    // Climate - wrap if needed
-    const climate = receiptData.subregion.climate.join(", ");
-    if (climate.length > lineWidth - 9) {
-      lines.push("CLIMATE:");
-      wrapText(climate, lineWidth - 2).forEach(line => lines.push("  " + line));
-    } else {
-      lines.push(`CLIMATE: ${climate}`);
-    }
-    
-    // Landscape - wrap if needed
-    const landscape = receiptData.subregion.landscape.join(", ");
-    if (landscape.length > lineWidth - 11) {
-      lines.push("LANDSCAPE:");
-      wrapText(landscape, lineWidth - 2).forEach(line => lines.push("  " + line));
-    } else {
-      lines.push(`LANDSCAPE: ${landscape}`);
-    }
-    
-    lines.push(`RAINFALL: ${receiptData.subregion.rainfall}mm/year`);
-    lines.push(`LAND: €${receiptData.subregion.averagePricePerSqm}/m²`);
-    
-    // Energy if available
-    if (receiptData.subregion.energy.length > 0) {
-      const energy = receiptData.subregion.energy.join(", ");
-      if (energy.length > lineWidth - 8) {
-        lines.push("ENERGY:");
-        wrapText(energy, lineWidth - 2).forEach(line => lines.push("  " + line));
-      } else {
-        lines.push(`ENERGY: ${energy}`);
-      }
-    }
-    lines.push("");
-    
-    // Traditional crops
-    const allCrops = [
-      ...receiptData.subregion.vegetables,
-      ...receiptData.subregion.fruitsAndNuts,
-      ...receiptData.subregion.otherFoodProduction
-    ].slice(0, 8); // Limit to 8 most important
-    
-    lines.push("TRADITIONAL CROPS:");
-    const cropsText = allCrops.join(", ");
-    wrapText(cropsText, lineWidth - 2).forEach(line => lines.push("  " + line));
-    lines.push("");
-    lines.push("--------------------------------");
-    lines.push("");
-    
-    // 3. COST BREAKDOWN - DETAILED
-    lines.push(center("INVESTMENT BREAKDOWN"));
-    lines.push("");
-    
-    // Land cost
-    lines.push(formatLine("Land", `€${formatNumber(receiptData.landCost)}`));
-    
-    // Home cost (if separate from license)
     const homeCostOnly = Math.round(receiptData.homeCost / (1 + receiptData.subregion.buildingLicensePercent / 100));
     const licenseCost = receiptData.homeCost - homeCostOnly;
-    lines.push(formatLine("Home", `€${formatNumber(homeCostOnly)}`));
-    lines.push(formatLine("License", `€${formatNumber(licenseCost)}`));
-    
-    // Food systems breakdown
-    if (receiptData.selectedFoodSystems.length > 0) {
-      lines.push("");
-      lines.push("FOOD SYSTEMS:");
-      const foodCostPerSystem = Math.round(receiptData.foodSystemsCost / receiptData.selectedFoodSystems.length);
-      receiptData.selectedFoodSystems.forEach(system => {
-        // Show each food system with shorter names
-        let shortName = system;
-        if (system.includes("Vegetable")) shortName = "Vegetables";
-        else if (system.includes("Fruit")) shortName = "Fruits";
-        else if (system.includes("Greenhouse")) shortName = "Greenhouse";
-        else if (system.includes("Poultry")) shortName = "Poultry";
-        else if (system.includes("Dairy")) shortName = "Dairy";
-        else if (system.includes("Beekeeping")) shortName = "Bees";
-        else if (system.includes("Food Forest")) shortName = "Food Forest";
-        else if (system.length > 18) shortName = system.substring(0, 17);
-        
-        lines.push(formatLine(` ${shortName}`, `€${formatNumber(foodCostPerSystem)}`));
-      });
-    }
-    
-    // Resource systems breakdown
-    if (receiptData.selectedResourceSystems.length > 0) {
-      lines.push("");
-      lines.push("INFRASTRUCTURE:");
-      const resourceCostPerSystem = Math.round(receiptData.resourceSystemsCost / receiptData.selectedResourceSystems.length);
-      receiptData.selectedResourceSystems.forEach(system => {
-        // Show each resource system with shorter names
-        let shortName = system;
-        if (system.includes("Solar")) shortName = "Solar";
-        else if (system.includes("Wind")) shortName = "Wind";
-        else if (system.includes("Well")) shortName = "Well";
-        else if (system.includes("Rainwater")) shortName = "Rainwater";
-        else if (system.includes("Wood Stove")) shortName = "Wood Heat";
-        else if (system.includes("Heat Pump")) shortName = "Heat Pump";
-        else if (system.includes("Generator")) shortName = "Generator";
-        else if (system.includes("Drip")) shortName = "Drip Irrigation";
-        else if (system.length > 18) shortName = system.substring(0, 17);
-        
-        lines.push(formatLine(` ${shortName}`, `€${formatNumber(resourceCostPerSystem)}`));
-      });
-    }
-    
-    // Creative space
-    if (receiptData.creativeSpaceCost > 0 && receiptData.creativeSpace) {
-      lines.push("");
-      lines.push("CREATIVE SPACE:");
-      let shortName = receiptData.creativeSpace;
-      if (shortName.includes("Studio")) shortName = "Studio";
-      else if (shortName.includes("Cabin")) shortName = "Cabin";
-      else if (shortName.includes("Platform")) shortName = "Platform";
-      else if (shortName.length > 18) shortName = shortName.substring(0, 17);
-      lines.push(formatLine(` ${shortName}`, `€${formatNumber(receiptData.creativeSpaceCost)}`));
-    }
-    
-    lines.push("........................................");
-    lines.push(formatLine("Subtotal", `€${formatNumber(receiptData.totalCost)}`));
-    lines.push(formatLine("Buffer 30%", `€${formatNumber(financialCushion)}`));
-    lines.push("========================================");
-    lines.push(formatLine("TOTAL", `€${formatNumber(totalWithCushion)}`));
-    lines.push("");
-    
-    // Annual costs breakdown
-    if (receiptData.annualCosts > 0) {
-      lines.push("ANNUAL COSTS:");
-      lines.push(formatLine("Total/year", `€${formatNumber(receiptData.annualCosts)}`));
-      lines.push(formatLine("Per month", `€${formatNumber(Math.round(receiptData.annualCosts / 12))}`));
-      lines.push("");
-    }
-    
-    // Time commitment with details
-    if (receiptData.weeklyHours > 0) {
-      lines.push("TIME COMMITMENT:");
-      lines.push(formatLine("Average", `${receiptData.weeklyHours}h/week`));
-      if (receiptData.peakHours > receiptData.weeklyHours) {
-        lines.push(formatLine("Peak season", `${receiptData.peakHours}h/week`));
-      }
-      lines.push(formatLine("Annual hours", `${Math.round(receiptData.weeklyHours * 52)}h`));
-    }
-    lines.push("");
-    lines.push("----------------------------------------");
-    lines.push("");
-    
-    // 4. COMMUNITY & PROJECTS
-    lines.push(center("COMMUNITY"));
-    lines.push("");
-    
-    // Region-specific projects
-    const regionalProjects: Record<string, string[]> = {
-      andalusia: [
-        "Suryalila Centre",
-        "Los Molinos",
-        "Beneficio",
-        "OASIS Foundation"
-      ],
-      asturias: [
-        "Eco Aldea Network",
-        "Permacultura Cantabria",
-        "Transition Groups",
-        "WWOOF Spain"
-      ],
-      algarve: [
-        "Tamera",
-        "Mount of Oaks",
-        "Vale da Lama",
-        "A Rocha"
-      ],
-      "northern-portugal": [
-        "Aldeia de Cabrum",
-        "Awakened Life",
-        "Permalab",
-        "Serra do Açor"
-      ],
-      provence: [
-        "Les Amanins",
-        "Terre & Humanisme",
-        "Mas de Beaulieu",
-        "Longo Maï"
-      ],
-      brittany: [
-        "Kerzello",
-        "Keruzerh",
-        "Ty Poul Farm",
-        "Breton Network"
-      ],
-      bavaria: [
-        "Schloss Tempelhof",
-        "Lebensgarten",
-        "Ökodorf Pestalozzi",
-        "Transition Towns"
-      ],
-      brandenburg: [
-        "Sieben Linden",
-        "KuBiZ Projects",
-        "Uferwerk",
-        "Lebensraum"
-      ],
-      carinthia: [
-        "Krameterhof",
-        "Biotopia",
-        "Alpine Permaculture",
-        "Transition Kärnten"
-      ],
-      "south-bohemia": [
-        "Permalot CZ",
-        "Permakultura CS",
-        "Camphill",
-        "Sluňákov"
-      ],
-      dalarna: [
-        "Stjärnsund",
-        "Mundekulla",
-        "Charlottendal",
-        "Nordic Permaculture"
-      ]
-    };
-    
-    const projects = regionalProjects[receiptData.subregion.id] || [
-      "Permaculture Groups",
-      "Eco-Villages",
-      "Transition Network",
-      "WWOOF"
-    ];
-    
-    projects.slice(0, 4).forEach(project => lines.push(`• ${project}`));
-    lines.push("");
-    lines.push("--------------------------------");
-    lines.push("");
-    
-    // 5. RESOURCES
-    lines.push(center("LEARN MORE"));
-    lines.push("");
-    lines.push("YOUTUBE:");
-    lines.push("• Kirsten Dirksen");
-    lines.push("• Happen Films");
-    lines.push("• Self Sufficient Me");
-    lines.push("");
-    lines.push("BOOKS:");
-    lines.push("• One Straw Revolution");
-    lines.push("• Gaia's Garden");
-    lines.push("• Market Gardener");
-    lines.push("");
-    lines.push("PODCASTS:");
-    lines.push("• Permaculture Podcast");
-    lines.push("• From the Field");
-    lines.push("");
-    lines.push("--------------------------------");
-    lines.push("");
-    
-    // 6. SAVINGS PLAN
-    lines.push(center("SAVINGS TIMELINE"));
-    lines.push("");
-    
-    // Calculate monthly savings
+
     const calculateMonthlySavings = (years: number): number => {
       const months = years * 12;
       const monthlyReturn = 0.07 / 12;
       const factor = ((Math.pow(1 + monthlyReturn, months) - 1) / monthlyReturn);
       return Math.round(totalWithCushion / factor);
     };
-    
-    lines.push("Monthly savings needed:");
-    lines.push("(7% annual return)");
-    lines.push("");
-    lines.push(formatLine("5 yrs", `€${formatNumber(calculateMonthlySavings(5))}/mo`));
-    lines.push(formatLine("7 yrs", `€${formatNumber(calculateMonthlySavings(7))}/mo`));
-    lines.push(formatLine("10 yrs", `€${formatNumber(calculateMonthlySavings(10))}/mo`));
-    lines.push("");
-    lines.push("--------------------------------");
-    lines.push("");
-    
-    // 7. CALL TO ACTION
-    lines.push(center("JOIN US"));
-    lines.push("");
-    lines.push("offgrid-calculator.com");
-    lines.push("@offgridcalculator");
-    lines.push("#MyOffGridJourney");
-    lines.push("");
-    lines.push(center("The land is waiting"));
-    lines.push("");
-    lines.push("================================");
-    lines.push(center(new Date().toLocaleDateString()));
-    lines.push(center("Keep • Frame • Live"));
-    
-    return lines.join("\n");
+
+    // Get traditional crops
+    const allCrops = [
+      ...receiptData.subregion.vegetables,
+      ...receiptData.subregion.fruitsAndNuts,
+      ...receiptData.subregion.otherFoodProduction
+    ].slice(0, 8);
+
+    // Regional projects
+    const regionalProjects: Record<string, string[]> = {
+      andalusia: ["Suryalila Centre", "Los Molinos", "Beneficio", "OASIS Foundation"],
+      asturias: ["Eco Aldea Network", "Permacultura Cantabria", "Transition Groups", "WWOOF Spain"],
+      algarve: ["Tamera", "Mount of Oaks", "Vale da Lama", "A Rocha"],
+      "northern-portugal": ["Aldeia de Cabrum", "Awakened Life", "Permalab", "Serra do Açor"],
+      provence: ["Les Amanins", "Terre & Humanisme", "Mas de Beaulieu", "Longo Maï"],
+      brittany: ["Kerzello", "Keruzerh", "Ty Poul Farm", "Breton Network"],
+      bavaria: ["Schloss Tempelhof", "Lebensgarten", "Ökodorf Pestalozzi", "Transition Towns"],
+      brandenburg: ["Sieben Linden", "KuBiZ Projects", "Uferwerk", "Lebensraum"],
+      carinthia: ["Krameterhof", "Biotopia", "Alpine Permaculture", "Transition Kärnten"],
+      "south-bohemia": ["Permalot CZ", "Permakultura CS", "Camphill", "Sluňákov"],
+      dalarna: ["Stjärnsund", "Mundekulla", "Charlottendal", "Nordic Permaculture"]
+    };
+
+    const projects = regionalProjects[receiptData.subregion.id] || ["Permaculture Groups", "Eco-Villages", "Transition Network", "WWOOF"];
+
+    // Generate random position for dot
+    const frameWidthMM = 52;
+    const frameHeightMM = 65; // 4:5 ratio
+    const margin = 3;
+    const dotX = Math.random() * (frameWidthMM - margin * 2) + margin;
+    const dotY = Math.random() * (frameHeightMM - margin * 2) + margin;
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Off-Grid Receipt</title>
+        <style>
+          body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
+            background: white;
+            width: 57mm;
+          }
+          * {
+            font-family: 'Courier New', Courier, monospace !important;
+          }
+          .receipt {
+            width: 57mm;
+            padding: 0;
+            margin: 0;
+          }
+          h1, h2, h3, p {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+          }
+          h1 {
+            font-size: 12px;
+            text-align: center;
+            margin: 3px 0;
+          }
+          h2 {
+            font-size: 12px;
+            text-align: center;
+            margin: 3px 0;
+          }
+          h3 {
+            font-size: 12px;
+            text-align: center;
+            margin: 3px 0;
+          }
+          p {
+            font-size: 12px;
+            margin: 2px 0;
+          }
+          .divider {
+            text-align: center;
+            margin: 3px 0;
+            font-size: 12px;
+            overflow: hidden;
+            white-space: nowrap;
+          }
+          .section {
+            margin: 5px 0;
+          }
+          .row {
+            font-size: 12px;
+            margin: 2px 0;
+            white-space: pre;
+            font-family: 'Courier New', Courier, monospace;
+          }
+          .center { text-align: center; }
+          .small { font-size: 12px; }
+          .indent { margin-left: 5px; }
+          img.region-photo {
+            width: 100%;
+            max-width: 57mm;
+            height: auto;
+            margin: 5px 0;
+            display: block;
+          }
+          
+          /* Frame with dot */
+          .frame-container {
+            width: 52mm;
+            height: 65mm;
+            border: 0.5px solid black;
+            position: relative;
+            margin: 5mm auto;
+            box-sizing: border-box;
+          }
+          .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            left: ${dotX}mm;
+            top: ${dotY}mm;
+            background: black;
+            background: url('data:image/svg+xml;utf8,<svg width="4" height="4" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="2" fill="black"/></svg>') no-repeat center;
+            background-size: 4px 4px;
+          }
+          
+          @media print {
+            @page {
+              size: 57mm 297mm;
+              margin: 0;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+              width: 57mm !important;
+              max-width: 57mm !important;
+            }
+            .receipt {
+              width: 57mm !important;
+              max-width: 57mm !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+          }
+          
+          /* Специально для термопринтеров */
+          @media print and (max-width: 80mm) {
+            body, .receipt {
+              width: 57mm !important;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="receipt">
+          <!-- Header -->
+          <h1>OFF-GRID REALITY CHECK</h1>
+          <div class="divider">====================================</div>
+          
+          <!-- Disclaimer -->
+          <div class="section">
+            <h3>BEFORE YOU START</h3>
+            <p class="small">Living off-grid is not a romantic escape. It's hard work, endless projects, and serious time commitment. This lifestyle means building every system from the ground up. You might face regulations, isolation, climate challenges, and daily maintenance. But done right, you'll have something rare: life on your terms.</p>
+            
+            <p class="small" style="margin-top: 5px;">We can't plan or purchase freedom. I once believed this tool could offer a first step — a map, a price, a plan for escaping mainstream system and living a self-sufficient life. And maybe it still can. But what it cannot do is give a path to freedom.</p>
+            
+            <p class="small" style="margin-top: 5px;">Because a homestead is still a structure. Still a system. Still labor, risk, repetition, money involved. And if the hunger behind it stays the same — then all that changes is the view from the window.</p>
+            
+            <p class="small" style="margin-top: 5px;">Freedom is not a place. It's a rhythm. It begins not after savings, not after land, but the moment you stop running. If we have to be somewhere that is not here, we are far from being free. This receipt shows that no matter where we live, we'll carry the weight of what we are holding — stress, rent, exhaustion, constant dislocation.</p>
+            
+            <p class="small" style="margin-top: 5px;">Choosing to walk toward a homestead is still a beautiful direction. But let it be a quiet unfolding — not an escape. Let it be a return to your own rhythm. Let it grow out of attention and curiosity — not from expectations, not from fantasies, not from fear. Let it root in the unconditional: in care, in love, in stillness. Witness how things bloom when nothing is forced.</p>
+            
+            <p class="small" style="margin-top: 5px;">I think if we manage to find our tune — it won't matter if the land comes or not. With no expectations freedom no longer depends on where we live or what we have. If freedom can't be estimated with money, maybe it can with how close our life feels to who we are.</p>
+          </div>
+          
+          <div class="divider">------------------------------------</div>
+          
+          <!-- Region Section -->
+          <div class="section">
+            <h2>YOUR CHOSEN LAND</h2>
+            <h1>${receiptData.subregion.name.toUpperCase()}</h1>
+            <p class="center">${receiptData.subregion.country}</p>
+            
+            <!-- Region Image Here -->
+            <img src="/regions/${receiptData.subregion.id}.png" 
+                 alt="${receiptData.subregion.name}" 
+                 class="region-photo"
+                 onerror="this.style.display='none';" />
+            
+            <p><strong>CLIMATE:</strong> ${receiptData.subregion.climate.join(", ")}</p>
+            <p><strong>LANDSCAPE:</strong> ${receiptData.subregion.landscape.join(", ")}</p>
+            <p><strong>RAINFALL:</strong> ${receiptData.subregion.rainfall}mm/year</p>
+            <p><strong>LAND:</strong> ${receiptData.subregion.averagePricePerSqm}€/m²</p>
+            ${receiptData.subregion.energy.length > 0 ? `<p><strong>ENERGY:</strong> ${receiptData.subregion.energy.join(", ")}</p>` : ''}
+            
+            <p><strong>TRADITIONAL CROPS:</strong></p>
+            <p class="indent small">${allCrops.join(", ")}</p>
+          </div>
+          
+          <div class="divider">------------------------------</div>
+          
+          <!-- Investment Breakdown -->
+          <div class="section">
+            <h3>INVESTMENT BREAKDOWN</h3>
+            
+            <div class="row">${formatLine("Land", formatNumber(receiptData.landCost) + "€")}</div>
+            <div class="row">${formatLine("Home", formatNumber(homeCostOnly) + "€")}</div>
+            <div class="row">${formatLine("License", formatNumber(licenseCost) + "€")}</div>
+            
+            ${receiptData.selectedFoodSystems.length > 0 ? `
+              <p style="margin-top: 5px;"><strong>FOOD SYSTEMS:</strong></p>
+              ${receiptData.selectedFoodSystems.map(system => {
+                const shortName = system.replace("Vegetable Garden", "Vegetables")
+                  .replace("Food Forest", "Forest")
+                  .replace("Fruit Orchard", "Orchard")
+                  .replace("Beekeeping", "Bees");
+                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.foodSystemsCost / receiptData.selectedFoodSystems.length)) + "€", 34)}</div>`;
+              }).join('')}
+            ` : ''}
+            
+            ${receiptData.selectedResourceSystems.length > 0 ? `
+              <p style="margin-top: 5px;"><strong>INFRASTRUCTURE:</strong></p>
+              ${receiptData.selectedResourceSystems.map(system => {
+                const shortName = system.replace("Solar Power System", "Solar")
+                  .replace("Water Well", "Well")
+                  .replace("Rainwater Harvesting", "Rainwater")
+                  .replace("Wood Stove", "Wood Heat")
+                  .replace("Water Filtration System", "Water Filter")
+                  .replace("Backup Generator", "Generator");
+                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.resourceSystemsCost / receiptData.selectedResourceSystems.length)) + "€", 34)}</div>`;
+              }).join('')}
+            ` : ''}
+            
+            ${receiptData.creativeSpaceCost > 0 && receiptData.creativeSpace ? `
+              <p style="margin-top: 5px;"><strong>CREATIVE SPACE:</strong></p>
+              <div class="row indent">${formatLine(receiptData.creativeSpace, formatNumber(receiptData.creativeSpaceCost) + "€", 34)}</div>
+            ` : ''}
+            
+            <div class="row" style="margin-top: 5px;">....................................</div>
+            
+            <div class="row">${formatLine("Subtotal", formatNumber(receiptData.totalCost) + "€")}</div>
+            <div class="row">${formatLine("Buffer 30%", formatNumber(financialCushion) + "€")}</div>
+            
+            <div class="divider">====================================</div>
+            
+            <div class="row" style="font-weight: bold;">${formatLine("TOTAL", formatNumber(totalWithCushion) + "€")}</div>
+            
+            ${receiptData.annualCosts > 0 ? `
+              <p style="margin-top: 5px;"><strong>ANNUAL COSTS:</strong></p>
+              <div class="row">${formatLine("Total/year", formatNumber(receiptData.annualCosts) + "€")}</div>
+              <div class="row">${formatLine("Per month", formatNumber(Math.round(receiptData.annualCosts / 12)) + "€")}</div>
+            ` : ''}
+            
+            ${receiptData.weeklyHours > 0 ? `
+              <p style="margin-top: 5px;"><strong>TIME COMMITMENT:</strong></p>
+              <div class="row">${formatLine("Average", receiptData.weeklyHours + "h/week")}</div>
+              ${receiptData.peakHours > receiptData.weeklyHours ? `
+                <div class="row">${formatLine("Peak season", receiptData.peakHours + "h/week")}</div>
+              ` : ''}
+              <div class="row">${formatLine("Annual hours", Math.round(receiptData.weeklyHours * 52) + "h")}</div>
+            ` : ''}
+          </div>
+          
+          <div class="divider">------------------------------</div>
+          
+          <!-- Community -->
+          <div class="section">
+            <h3>COMMUNITY</h3>
+            ${projects.slice(0, 4).map(project => `<p class="small">• ${project}</p>`).join('')}
+          </div>
+          
+          <div class="divider">------------------------------</div>
+          
+          <!-- Resources -->
+          <div class="section">
+            <h3>LEARN MORE</h3>
+            <p class="small"><strong>YOUTUBE:</strong></p>
+            <p class="small">• Kirsten Dirksen</p>
+            <p class="small">• Happen Films</p>
+            <p class="small">• Self Sufficient Me</p>
+            
+            <p class="small" style="margin-top: 3px;"><strong>BOOKS:</strong></p>
+            <p class="small">• One Straw Revolution</p>
+            <p class="small">• Gaia's Garden</p>
+            <p class="small">• Market Gardener</p>
+            
+            <p class="small" style="margin-top: 3px;"><strong>PODCASTS:</strong></p>
+            <p class="small">• Permaculture Podcast</p>
+            <p class="small">• From the Field</p>
+          </div>
+          
+          <div class="divider">------------------------------</div>
+          
+          <!-- Savings Plan -->
+          <div class="section">
+            <h3>SAVINGS TIMELINE</h3>
+            <p class="small">Monthly savings needed:</p>
+            <p class="small">(7% annual return)</p>
+            <div class="row">${formatLine("5 yrs", formatNumber(calculateMonthlySavings(5)) + "€/mo")}</div>
+            <div class="row">${formatLine("7 yrs", formatNumber(calculateMonthlySavings(7)) + "€/mo")}</div>
+            <div class="row">${formatLine("10 yrs", formatNumber(calculateMonthlySavings(10)) + "€/mo")}</div>
+          </div>
+          
+          <div class="divider">------------------------------</div>
+          
+          <!-- Footer without Join Us -->
+          <div class="section center">
+            <p style="margin-top: 5px;"><strong>The land is waiting</strong></p>
+            
+            <div class="divider">==============================</div>
+            <p class="small">${new Date().toLocaleDateString()}</p>
+            <p><strong>Keep • Frame • Live</strong></p>
+          </div>
+          
+          <!-- Frame with random dot -->
+          <div class="frame-container">
+            <div class="dot"></div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
   };
 
   const printReceipt = () => {
     setIsPrinting(true);
     
-    // Create print window
-    const printWindow = window.open('', 'PRINT', 'height=600,width=400');
+    const printWindow = window.open('', 'PRINT', 'height=800,width=400');
     
     if (!printWindow) {
       alert('Please allow popups for this website');
@@ -431,159 +407,61 @@ export default function ReceiptPrinter({ receiptData }: Props) {
       return;
     }
 
-    // HTML for printing with 58mm receipt printer styles
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Off-Grid Receipt</title>
-          <style>
-            @media print {
-              @page {
-                size: 58mm 210mm;
-                margin: 0;
-              }
-              body {
-                margin: 0;
-                padding: 0;
-              }
-              * {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-              }
-            }
-            @media screen {
-              body {
-                width: 58mm;
-              }
-            }
-            body {
-              font-family: 'Courier New', monospace;
-              font-size: 8px;
-              line-height: 1.1;
-              padding: 2mm;
-              width: 54mm;
-              margin: 0 auto;
-              background: white;
-            }
-            pre {
-              margin: 0;
-              white-space: pre;
-              word-wrap: normal;
-              overflow: hidden;
-            }
-          </style>
-        </head>
-        <body>
-          <pre>${formatReceipt()}</pre>
-          <script>
-            window.onload = function() {
-              // Попытка установить правильный размер бумаги через API браузера
-              if (window.matchMedia) {
-                window.matchMedia('print').addListener(function(mql) {
-                  if (mql.matches) {
-                    // Печать началась
-                  }
-                });
-              }
-              window.print();
-              setTimeout(function() {
-                window.close();
-              }, 500);
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    
+    const htmlContent = generateHTMLReceipt();
+    printWindow.document.write(htmlContent);
     printWindow.document.close();
     
-    setTimeout(() => {
-      setIsPrinting(false);
-    }, 1000);
+    // Wait for content and images to load
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        setTimeout(() => {
+          printWindow.close();
+          setIsPrinting(false);
+        }, 1000);
+      }, 500);
+    };
   };
 
-  const downloadReceiptAsText = () => {
-    const receiptText = formatReceipt();
-    const blob = new Blob([receiptText], { type: "text/plain" });
+  const downloadReceiptAsHTML = () => {
+    const htmlContent = generateHTMLReceipt();
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.txt`;
+    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  const downloadReceiptAsHTML = () => {
-    const receiptText = formatReceipt();
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Off-Grid Receipt - ${receiptData.subregion.name}</title>
-    <style>
-        @media print {
-            @page {
-                size: 58mm 210mm;
-                margin: 0;
-            }
-            body {
-                margin: 0;
-                padding: 0;
-            }
-        }
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.15;
-            padding: 3mm;
-            width: 52mm;
-            margin: 0 auto;
-            background: white;
-        }
-        pre {
-            margin: 0;
-            white-space: pre;
-            word-wrap: normal;
-            overflow: hidden;
-        }
-        .no-print {
-            margin: 20px auto;
-            max-width: 600px;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
-        @media print {
-            .no-print {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="no-print">
-        <h2>Off-Grid Receipt</h2>
-        <p>Нажмите Cmd+P (или Ctrl+P) чтобы распечатать этот чек.</p>
-        <p><strong>Настройки печати:</strong></p>
-        <ul>
-            <li>Принтер: YICHIP3121</li>
-            <li>Размер бумаги: 57 × 297 мм (или самый близкий)</li>
-            <li>Масштаб: По размеру страницы</li>
-            <li>Поля: Нет</li>
-        </ul>
-    </div>
-    <pre>${receiptText}</pre>
-</body>
-</html>`;
+  const downloadReceiptAsText = () => {
+    // Generate text version without images for backup
+    const lines: string[] = [];
+    const lineWidth = 28;
     
-    const blob = new Blob([htmlContent], { type: "text/html" });
+    const center = (text: string) => {
+      if (text.length >= lineWidth) return text.substring(0, lineWidth);
+      const padding = Math.floor((lineWidth - text.length) / 2);
+      return " ".repeat(Math.max(0, padding)) + text;
+    };
+    
+    // Simple text version...
+    lines.push(center("OFF-GRID RECEIPT"));
+    lines.push(center(`${receiptData.subregion.name}, ${receiptData.subregion.country}`));
+    lines.push(center(new Date().toLocaleDateString()));
+    lines.push("");
+    lines.push(`Total: ${receiptData.totalCost.toLocaleString()}€`);
+    lines.push(`Land: ${(receiptData.landArea / 10000).toFixed(1)} ha`);
+    lines.push(`Family: ${receiptData.familySize} people`);
+    
+    const textContent = lines.join("\n");
+    const blob = new Blob([textContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.html`;
+    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -612,45 +490,26 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           onClick={downloadReceiptAsHTML}
           className="w-full text-xs text-gray-600 underline hover:text-black transition-colors"
         >
-          Скачать HTML файл для печати (рекомендуется)
+          Download HTML receipt (with image)
         </button>
         
         <button
           onClick={downloadReceiptAsText}
           className="w-full text-xs text-gray-600 underline hover:text-black transition-colors"
         >
-          Скачать как текстовый файл
+          Download text receipt (backup)
         </button>
       </div>
       
       <div className="mt-6 p-4 bg-gray-50 border border-gray-200">
-        <h4 className="text-xs font-medium mb-2">Инструкция для печати на macOS:</h4>
+        <h4 className="text-xs font-medium mb-2">Printing tips:</h4>
         <ul className="text-xs text-gray-600 space-y-1">
-          <li>• <strong>Метод 1</strong>: Нажмите "Print Receipt" и выберите размер 57×297мм</li>
-          <li>• <strong>Метод 2</strong>: Скачайте HTML файл, откройте в браузере, нажмите Cmd+P</li>
-          <li>• В настройках печати выберите "Книжная" ориентация</li>
-          <li>• Масштаб: По размеру страницы</li>
-          <li>• Поля: Нет</li>
+          <li>• Receipt width: 58mm</li>
+          <li>• Image will appear after region name</li>
+          <li>• If image doesn't print, use HTML download</li>
+          <li>• Frame with random dot at the end</li>
         </ul>
-        
-        <div className="mt-3 p-3 bg-blue-50 border border-blue-200">
-          <p className="text-xs font-medium text-blue-800">Решение проблемы с пустым листом:</p>
-          <p className="text-xs text-blue-700 mt-1">
-            Если при печати текстового файла выходит пустой лист, используйте HTML файл - 
-            он сохраняет форматирование и правильно печатается на термопринтере.
-          </p>
-        </div>
       </div>
-      
-      {/* Preview section */}
-      <details className="mt-6">
-        <summary className="text-xs text-gray-600 cursor-pointer hover:text-black">
-          Preview receipt content
-        </summary>
-        <pre className="mt-4 p-4 bg-gray-50 text-xs font-mono overflow-x-auto whitespace-pre border border-gray-200">
-          {formatReceipt()}
-        </pre>
-      </details>
     </div>
   );
 }

@@ -85,9 +85,45 @@ export default function SimpleResourceSelection({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
 
+  // Get recommended variant based on home size and family size
+  const getRecommendedVariant = (
+    resource: SimpleResource,
+    homeSize: number,
+    familySize: number
+  ): string | undefined => {
+    if (resource.id === "grid-connection") {
+      // For grid connection, recommend based on home size and family
+      if (homeSize <= 50 || familySize <= 1) return "basic";
+      if (homeSize >= 120 || familySize >= 5) return "high";
+      return "standard"; // Default for medium homes/families
+    }
+    
+    if (resource.id === "solar-basic") {
+      // For solar, recommend based on family size
+      if (familySize <= 2) return "3kw";
+      if (familySize >= 5) return "8kw";
+      return "5kw";
+    }
+    
+    if (resource.id === "rainwater") {
+      // For rainwater, based on family size
+      if (familySize <= 2) return "5000L";
+      if (familySize >= 5) return "20000L";
+      return "10000L";
+    }
+    
+    // For resources with variants but no specific logic, return first variant
+    if (resource.variants && resource.variants.length > 0) {
+      return resource.variants[0].id;
+    }
+    
+    return undefined;
+  };
+
   // Auto-select some recommended resources on mount
   useEffect(() => {
     const autoSelected = new Set<string>();
+    const autoVariants: Record<string, string> = {};
     
     // Auto-select one highly recommended from each required category
     ["energy", "water", "heating"].forEach(category => {
@@ -97,18 +133,17 @@ export default function SimpleResourceSelection({
       );
       if (highlyRecommended) {
         autoSelected.add(highlyRecommended.id);
-        // Set default variant if exists
-        if (highlyRecommended.variants) {
-          setSelectedVariants(prev => ({
-            ...prev,
-            [highlyRecommended.id]: highlyRecommended.variants![0].id
-          }));
+        // Set recommended variant if exists
+        const recommendedVariant = getRecommendedVariant(highlyRecommended, homeArea, familySize);
+        if (recommendedVariant) {
+          autoVariants[highlyRecommended.id] = recommendedVariant;
         }
       }
     });
     
     setSelectedIds(autoSelected);
-  }, [resourcesByCategory, regionTags]);
+    setSelectedVariants(autoVariants);
+  }, [resourcesByCategory, regionTags, homeArea, familySize]);
 
   // Toggle resource selection
   const toggleResource = (resourceId: string) => {
@@ -118,6 +153,17 @@ export default function SimpleResourceSelection({
         newSet.delete(resourceId);
       } else {
         newSet.add(resourceId);
+        // Auto-set recommended variant when selecting
+        const resource = availableResources.find(r => r.id === resourceId);
+        if (resource && resource.variants) {
+          const recommendedVariant = getRecommendedVariant(resource, homeArea, familySize);
+          if (recommendedVariant) {
+            setSelectedVariants(prev => ({
+              ...prev,
+              [resourceId]: recommendedVariant
+            }));
+          }
+        }
       }
       return newSet;
     });
@@ -143,7 +189,7 @@ export default function SimpleResourceSelection({
       if (!resource) return;
 
       // Get costs (with scaling)
-      const costs = calculateResourceCosts(resource, homeArea, familySize);
+      let costs = calculateResourceCosts(resource, homeArea, familySize);
       
       // Check for variant pricing
       if (resource.variants && selectedVariants[id]) {
@@ -151,6 +197,13 @@ export default function SimpleResourceSelection({
         if (variant) {
           costs.setupCost = variant.setupCost;
           costs.annualCost = variant.annualCost;
+          
+          // Apply scaling for grid connection annual costs
+          if (resource.id === "grid-connection") {
+            const familyFactor = familySize <= 2 ? 0.7 : familySize <= 4 ? 1.0 : 1.3;
+            const homeFactor = homeArea <= 50 ? 0.8 : homeArea <= 100 ? 1.0 : 1.2;
+            costs.annualCost = Math.round(variant.annualCost * familyFactor * homeFactor);
+          }
         }
       }
 
@@ -217,7 +270,26 @@ export default function SimpleResourceSelection({
   const renderResource = (resource: SimpleResource) => {
     const isSelected = selectedIds.has(resource.id);
     const recommendation = getResourceRecommendation(resource, regionTags);
-    const costs = calculateResourceCosts(resource, homeArea, familySize);
+    
+    // Get base costs with scaling
+    let costs = calculateResourceCosts(resource, homeArea, familySize);
+    
+    // If resource is selected and has a variant selected, use variant costs
+    if (isSelected && resource.variants && selectedVariants[resource.id]) {
+      const selectedVariant = resource.variants.find(v => v.id === selectedVariants[resource.id]);
+      if (selectedVariant) {
+        costs = {
+          setupCost: selectedVariant.setupCost,
+          annualCost: selectedVariant.annualCost
+        };
+        // Apply scaling for annual costs if it's grid connection
+        if (resource.id === "grid-connection") {
+          const familyFactor = familySize <= 2 ? 0.7 : familySize <= 4 ? 1.0 : 1.3;
+          const homeFactor = homeArea <= 50 ? 0.8 : homeArea <= 100 ? 1.0 : 1.2;
+          costs.annualCost = Math.round(selectedVariant.annualCost * familyFactor * homeFactor);
+        }
+      }
+    }
 
     const getBadgeStyle = () => {
       switch (recommendation) {
@@ -267,7 +339,7 @@ export default function SimpleResourceSelection({
           </div>
           <div>
             <span className="text-gray-500">Annual: </span>
-            <span className="font-medium">€{costs.annualCost}/year</span>
+            <span className="font-medium">€{costs.annualCost.toLocaleString()}/year</span>
           </div>
         </div>
 
@@ -281,25 +353,43 @@ export default function SimpleResourceSelection({
         {isSelected && resource.variants && (
           <div className="mt-3 pt-3 border-t border-gray-200">
             <div className="text-xs font-medium mb-2">Choose size:</div>
-            <div className="space-y-1">
-              {resource.variants.map(variant => (
-                <label
-                  key={variant.id}
-                  className="flex items-center gap-2 text-xs cursor-pointer"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <input
-                    type="radio"
-                    name={`variant-${resource.id}`}
-                    checked={selectedVariants[resource.id] === variant.id}
-                    onChange={() => setVariant(resource.id, variant.id)}
-                  />
-                  <span>{variant.name}</span>
-                  <span className="text-gray-500">
-                    €{variant.setupCost.toLocaleString()}
-                  </span>
-                </label>
-              ))}
+            <div className="space-y-2">
+              {resource.variants.map(variant => {
+                const isRecommended = getRecommendedVariant(resource, homeArea, familySize) === variant.id;
+                return (
+                  <label
+                    key={variant.id}
+                    className={`flex flex-col gap-1 p-2 border rounded cursor-pointer transition-all ${
+                      selectedVariants[resource.id] === variant.id
+                        ? "border-black bg-gray-50"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`variant-${resource.id}`}
+                        checked={selectedVariants[resource.id] === variant.id}
+                        onChange={() => setVariant(resource.id, variant.id)}
+                      />
+                      <span className="text-xs font-medium">
+                        {variant.name} - €{variant.setupCost.toLocaleString()}
+                      </span>
+                      {isRecommended && (
+                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">
+                          Recommended
+                        </span>
+                      )}
+                    </div>
+                    {'description' in variant && variant.description && (
+                      <p className="text-xs text-gray-500 ml-5">
+                        {variant.description}
+                      </p>
+                    )}
+                  </label>
+                );
+              })}
             </div>
           </div>
         )}

@@ -223,16 +223,27 @@ export default function FoodProductionSelection({
   }, [totalMultiplier]);
 
   // Memoize available space calculation
-  const { availableSpace, utilitySpace } = useMemo(() => {
-    const infrastructureSpace = 200;
+  const { availableSpace, utilitySpace, homeSpace, infrastructureSpace } = useMemo(() => {
+    // Calculate infrastructure dynamically based on land and home size
+    const calculateInfrastructure = () => {
+      const baseInfrastructure = homeArea * 0.1;
+      const pathways = landArea * 0.02;
+      const aroundHome = homeArea * 0.2;
+      const utilities = 50;
+      return Math.round(baseInfrastructure + pathways + aroundHome + utilities);
+    };
+    
+    const infrastructure = calculateInfrastructure();
     const utilitySpace = Array.from(selectedSystems).reduce(
       (sum, system) => sum + utilitySpaceRequirements[system],
       0
     );
-    const reservedSpace = homeArea + infrastructureSpace + utilitySpace;
+    const reservedSpace = homeArea + infrastructure + utilitySpace;
     return {
       availableSpace: landArea - reservedSpace,
       utilitySpace,
+      homeSpace: homeArea,
+      infrastructureSpace: infrastructure,
     };
   }, [selectedSystems, homeArea, landArea]);
 
@@ -552,210 +563,153 @@ export default function FoodProductionSelection({
           })}
         </div>
 
-        {/* Right: Summary and tips */}
+        {/* Right: Summary */}
         <div className="space-y-8">
-          {/* Cost summary */}
-          <div className="border border-black p-8">
-            <h3 className="text-base font-medium mb-6">
-              Food Production Investment
-            </h3>
+          <div className="sticky top-8 space-y-8">
+            {/* Cost summary */}
+            <div className="border border-black p-8">
+              <h3 className="text-base font-medium mb-6">
+                Food Production Investment
+              </h3>
 
-            {/* Space usage indicator */}
-            <div className="mb-6">
-              <div className="flex justify-between text-xs mb-2">
-                <span>Land usage</span>
-                <span>
-                  {usedSpace.toLocaleString()} /{" "}
-                  {availableSpace.toLocaleString()} m²
-                </span>
-              </div>
-              <div className="w-full h-2 bg-gray-200 relative">
-                <div
-                  className="absolute left-0 top-0 h-full bg-black transition-all"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      (usedSpace / availableSpace) * 100
-                    )}%`,
-                  }}
-                />
-              </div>
-              <div className="text-xs text-gray-500 mt-1 space-y-1">
-                <div>
-                  Reserved: {homeArea} m² (home) + 200 m² (infrastructure)
+              {/* Space usage indicator */}
+              <div className="mb-6">
+                <div className="flex justify-between text-xs mb-2">
+                  <span>Land usage</span>
+                  <span>
+                    {usedSpace.toLocaleString()} /{" "}
+                    {availableSpace.toLocaleString()} m²
+                  </span>
                 </div>
-                {utilitySpace > 0 && (
-                  <div>
-                    Utility buildings: {utilitySpace} m² (sheds, storage,
-                    processing)
+                <div className="w-full h-2 bg-gray-200 relative">
+                  <div
+                    className="absolute left-0 top-0 h-full bg-black transition-all"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (usedSpace / availableSpace) * 100
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <div className="text-xs text-gray-500 mt-2 space-y-1">
+                  <div className="font-medium">Reserved space breakdown:</div>
+                  <div className="pl-2">
+                    • Home: {homeSpace} m²
                   </div>
-                )}
+                  <div className="pl-2">
+                    • Infrastructure: {infrastructureSpace} m²
+                  </div>
+                  {utilitySpace > 0 && (
+                    <div className="pl-2">
+                      • Food system buildings: {utilitySpace} m²
+                    </div>
+                  )}
+                  <div className="pl-2 font-medium text-green-700">
+                    • Available for food: {availableSpace.toLocaleString()} m²
+                  </div>
+                </div>
               </div>
+
+              {selectedSystems.size === 0 ? (
+                <p className="text-xs text-gray-500">
+                  Select systems to see costs
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    {Array.from(selectedSystems).map((system) => (
+                      <div key={system} className="text-xs">
+                        <div className="flex justify-between">
+                          <span>{foodSystemLabels[system]} setup</span>
+                          <span className="font-medium">
+                            €
+                            {Math.round(
+                              subregion.foodProduction[system].setupCost *
+                                selectedMode.costMultiplier
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-gray-300 pt-4">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span>Total Setup Cost</span>
+                      <span>€{totalSetupCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600 mt-2">
+                      <span>Annual Maintenance</span>
+                      <span>€{totalAnnualCost.toLocaleString()}/year</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {selectedSystems.size === 0 ? (
-              <p className="text-xs text-gray-500">
-                Select systems to see costs
-              </p>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  {Array.from(selectedSystems).map((system) => (
-                    <div key={system} className="text-xs">
-                      <div className="flex justify-between">
-                        <span>{foodSystemLabels[system]} setup</span>
-                        <span className="font-medium">
-                          €
-                          {Math.round(
-                            subregion.foodProduction[system].setupCost *
-                              selectedMode.costMultiplier
-                          ).toLocaleString()}
-                        </span>
-                      </div>
+            {/* Work time summary */}
+            {selectedSystems.size > 0 && (
+              <div className="border border-black p-6">
+                <h4 className="text-sm font-medium mb-4">
+                  Time Commitment (Basic Care Only)
+                </h4>
+                <div className="space-y-3">
+                  <div className="text-xs">
+                    <div className="flex justify-between mb-2">
+                      <span>Average weekly hours:</span>
+                      <span className="font-medium">
+                        {totalWeeklyHours.average} hours
+                      </span>
                     </div>
-                  ))}
-                </div>
-
-                <div className="border-t border-gray-300 pt-4">
-                  <div className="flex justify-between text-sm font-medium">
-                    <span>Total Setup Cost</span>
-                    <span>€{totalSetupCost.toLocaleString()}</span>
+                    <div className="flex justify-between mb-2">
+                      <span>Peak season hours:</span>
+                      <span className="font-medium">
+                        {totalWeeklyHours.peak} hours
+                      </span>
+                    </div>
+                    <div className="text-gray-500 mt-3">
+                      {totalWeeklyHours.average < 10 &&
+                        "Perfect for weekends and evenings"}
+                      {totalWeeklyHours.average >= 10 &&
+                        totalWeeklyHours.average < 20 &&
+                        "Part-time commitment needed"}
+                      {totalWeeklyHours.average >= 20 &&
+                        totalWeeklyHours.average < 30 &&
+                        "Significant daily work required"}
+                      {totalWeeklyHours.average >= 30 &&
+                        "Full-time lifestyle commitment"}
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Annual Maintenance</span>
-                    <span>€{totalAnnualCost.toLocaleString()}/year</span>
+
+                  <div className="border-t pt-3 text-xs text-gray-500">
+                    <p className="font-medium mb-1">Peak seasons:</p>
+                    {selectedSystems.has("vegetableGarden") && (
+                      <p>• Spring planting & fall harvest</p>
+                    )}
+                    {selectedSystems.has("fruitOrchard") && (
+                      <p>• Fruit harvest & processing</p>
+                    )}
+                    {selectedSystems.has("dairy") && (
+                      <p>• Daily milking year-round</p>
+                    )}
+                    {selectedSystems.has("poultry") && (
+                      <p>• Daily care required</p>
+                    )}
+                  </div>
+
+                  <div className="border-t pt-3 text-xs text-gray-500">
+                    <p className="leading-relaxed">
+                      These estimates cover basic daily care, maintenance, and harvest time only. 
+                      <span className="text-orange-600 font-medium">Add 50-100% more time</span> for 
+                      processing/preservation, selling surplus, learning curve in first years, and 
+                      supply trips.
+                    </p>
                   </div>
                 </div>
               </div>
             )}
           </div>
-
-          {/* Regional tips */}
-          <div className="border border-gray-300 p-6">
-            <h4 className="text-sm font-medium mb-4">
-              {subregion.name} Food Production Tips
-            </h4>
-            <div className="space-y-3 text-xs text-gray-600">
-              <p>
-                <strong>Climate:</strong> {subregion.climate.join(", ")} —
-                {subregion.rainfall}mm annual rainfall
-              </p>
-              <p>
-                <strong>Traditional crops:</strong>{" "}
-                {[...subregion.vegetables, ...subregion.fruitsAndNuts]
-                  .slice(0, 5)
-                  .join(", ")}
-              </p>
-              <p>
-                <strong>Best systems:</strong>{" "}
-                {sortedSystems
-                  .filter(([_, opt]) => opt.feasibility === "recommended")
-                  .slice(0, 3)
-                  .map(([sys, _]) => foodSystemLabels[sys])
-                  .join(", ")}
-              </p>
-            </div>
-          </div>
-
-          {/* Work time summary */}
-          {selectedSystems.size > 0 && (
-            <div className="border border-black p-6">
-              <h4 className="text-sm font-medium mb-4">
-                Time Commitment (Basic Care Only)
-              </h4>
-              <div className="space-y-3">
-                <div className="text-xs">
-                  <div className="flex justify-between mb-2">
-                    <span>Average weekly hours:</span>
-                    <span className="font-medium">
-                      {totalWeeklyHours.average} hours
-                    </span>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <span>Peak season hours:</span>
-                    <span className="font-medium">
-                      {totalWeeklyHours.peak} hours
-                    </span>
-                  </div>
-                  <div className="text-gray-500 mt-3">
-                    {totalWeeklyHours.average < 10 &&
-                      "Perfect for weekends and evenings"}
-                    {totalWeeklyHours.average >= 10 &&
-                      totalWeeklyHours.average < 20 &&
-                      "Part-time commitment needed"}
-                    {totalWeeklyHours.average >= 20 &&
-                      totalWeeklyHours.average < 30 &&
-                      "Significant daily work required"}
-                    {totalWeeklyHours.average >= 30 &&
-                      "Full-time lifestyle commitment"}
-                  </div>
-                </div>
-
-                <div className="border-t pt-3 text-xs text-gray-500">
-                  <p className="font-medium mb-1">Peak seasons:</p>
-                  {selectedSystems.has("vegetableGarden") && (
-                    <p>• Spring planting & fall harvest</p>
-                  )}
-                  {selectedSystems.has("fruitOrchard") && (
-                    <p>• Fruit harvest & processing</p>
-                  )}
-                  {selectedSystems.has("dairy") && (
-                    <p>• Daily milking year-round</p>
-                  )}
-                  {selectedSystems.has("poultry") && (
-                    <p>• Daily care required</p>
-                  )}
-                </div>
-
-                <div className="border-t pt-3 text-xs text-gray-500">
-                  <p className="font-medium mb-2">Time estimates include:</p>
-                  <ul className="space-y-1 text-xs">
-                    <li>• Basic maintenance & daily care</li>
-                    <li>• Harvest time (but NOT processing)</li>
-                    <li>• Essential infrastructure repairs</li>
-                  </ul>
-                  <p className="mt-2 text-xs text-orange-600 font-medium">
-                    Add 50-100% more time for:
-                  </p>
-                  <ul className="space-y-1 text-xs text-orange-600">
-                    <li>
-                      • Processing & preservation (canning, drying, freezing)
-                    </li>
-                    <li>• Marketing/selling surplus</li>
-                    <li>• Learning curve in first years</li>
-                    <li>• Trips for supplies & materials</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Synergies */}
-          {selectedSystems.size >= 2 && (
-            <div className="border border-gray-300 p-6">
-              <h4 className="text-sm font-medium mb-4">System Synergies</h4>
-              <div className="space-y-2 text-xs text-gray-600">
-                {selectedSystems.has("poultry") &&
-                  selectedSystems.has("vegetableGarden") && (
-                    <p>
-                      • Chickens provide fertilizer for gardens and pest control
-                    </p>
-                  )}
-                {selectedSystems.has("beekeeping") &&
-                  selectedSystems.has("fruitOrchard") && (
-                    <p>• Bees improve fruit yields through pollination</p>
-                  )}
-                {selectedSystems.has("dairy") &&
-                  selectedSystems.has("vegetableGarden") && (
-                    <p>• Manure enriches garden soil naturally</p>
-                  )}
-                {selectedSystems.has("foodForest") &&
-                  selectedSystems.has("poultry") && (
-                    <p>• Chickens thrive in food forest understory</p>
-                  )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
