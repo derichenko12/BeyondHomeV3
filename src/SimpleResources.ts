@@ -65,7 +65,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 1200,
     weeklyHours: 0,
     availableFor: ["ALL"],
-    icon: "🔌",
+    icon: "",
     variants: [
       { 
         id: "basic", 
@@ -99,7 +99,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 200,
     weeklyHours: 0.5,
     availableFor: ["Sufficient Sun"],
-    icon: "☀️",
+    icon: "",
     variants: [
       { id: "3kw", name: "3kW Basic (essential needs)", setupCost: 8000, annualCost: 200 },
       { id: "5kw", name: "5kW Standard (comfortable)", setupCost: 15000, annualCost: 300 },
@@ -116,7 +116,7 @@ export const simpleResources: SimpleResource[] = [
     weeklyHours: 1,
     availableFor: ["Coastline", "Mountains", "Meadow", "High Wind"],
     notRecommendedFor: ["Forests"],
-    icon: "💨",
+    icon: "",
   },
   {
     id: "generator",
@@ -127,7 +127,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 600,
     weeklyHours: 0.5,
     availableFor: ["ALL"], // Universal
-    icon: "⚡",
+    icon: "",
   },
   {
     id: "gas-cooking",
@@ -138,7 +138,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 600,
     weeklyHours: 0,
     availableFor: ["ALL"],
-    icon: "🔥",
+    icon: "",
   },
 
   // ========== WATER ==========
@@ -151,7 +151,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 300,
     weeklyHours: 0.2,
     availableFor: ["ALL"],
-    icon: "🚰",
+    icon: "",
   },
   {
     id: "rainwater",
@@ -163,7 +163,7 @@ export const simpleResources: SimpleResource[] = [
     weeklyHours: 0.5,
     availableFor: ["Cloudy", "Mild"],
     notRecommendedFor: ["Sufficient Sun"], // Less effective in dry regions
-    icon: "🌧️",
+    icon: "",
     variants: [
       { id: "5000L", name: "5,000L (small family)", setupCost: 4000, annualCost: 200 },
       { id: "10000L", name: "10,000L (standard)", setupCost: 6000, annualCost: 250 },
@@ -179,7 +179,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 100,
     weeklyHours: 0.3,
     availableFor: ["Mountains", "Rivers"],
-    icon: "⛲",
+    icon: "",
   },
   {
     id: "water-filter",
@@ -190,7 +190,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 300,
     weeklyHours: 0.1,
     availableFor: ["ALL"],
-    icon: "💧",
+    icon: "",
   },
 
   // ========== HEATING ==========
@@ -203,7 +203,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 400,
     weeklyHours: 3,
     availableFor: ["ALL"],
-    icon: "🪵",
+    icon: "",
   },
   {
     id: "heat-pump",
@@ -215,7 +215,7 @@ export const simpleResources: SimpleResource[] = [
     weeklyHours: 0,
     availableFor: ["Mild", "Sufficient Sun"],
     notRecommendedFor: ["Cold Winters"],
-    icon: "🌡️",
+    icon: "",
   },
   {
     id: "pellet-stove",
@@ -226,7 +226,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 800,
     weeklyHours: 0.5,
     availableFor: ["Cold Winters", "Cloudy"],
-    icon: "🔥",
+    icon: "",
   },
 
   // ========== IRRIGATION ==========
@@ -239,7 +239,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 100,
     weeklyHours: 0.5,
     availableFor: ["ALL"],
-    icon: "💦",
+    icon: "",
   },
   {
     id: "gravity-irrigation",
@@ -250,7 +250,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 50,
     weeklyHours: 1,
     availableFor: ["Mountains", "Rivers"],
-    icon: "⛰️",
+    icon: "",
   },
   {
     id: "pump-irrigation",
@@ -261,7 +261,7 @@ export const simpleResources: SimpleResource[] = [
     annualCost: 200,
     weeklyHours: 0.5,
     availableFor: ["ALL"],
-    icon: "🔌",
+    icon: "",
   },
 ];
 

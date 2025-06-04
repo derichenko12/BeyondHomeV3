@@ -42,8 +42,8 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  // Helper to format line with dots
-  const formatLine = (label: string, value: string, width: number = 36) => {
+  // Helper to format line with dots - consistent 38 chars width
+  const formatLine = (label: string, value: string, width: number = 38) => {
     const totalLength = width;
     const labelLength = label.length;
     const valueLength = value.length;
@@ -153,13 +153,13 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           }
           .divider {
             text-align: center;
-            margin: 3px 0;
+            margin: 2px 0;
             font-size: 12px;
             overflow: hidden;
             white-space: nowrap;
           }
           .section {
-            margin: 5px 0;
+            margin: 4px 0;
           }
           .row {
             font-size: 12px;
@@ -174,7 +174,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             width: 100%;
             max-width: 57mm;
             height: auto;
-            margin: 5px 0;
+            margin: 2px 0;
             display: block;
           }
           
@@ -194,8 +194,12 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             left: ${dotX}mm;
             top: ${dotY}mm;
             background: black;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            /* For SVG dot uncomment and add your SVG:
             background: url('data:image/svg+xml;utf8,<svg width="4" height="4" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="2" fill="black"/></svg>') no-repeat center;
             background-size: 4px 4px;
+            */
           }
           
           @media print {
@@ -229,7 +233,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
         <div class="receipt">
           <!-- Header -->
           <h1>OFF-GRID REALITY CHECK</h1>
-          <div class="divider">====================================</div>
+          <div class="divider">======================================</div>
           
           <!-- Disclaimer -->
           <div class="section">
@@ -247,7 +251,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             <p class="small" style="margin-top: 5px;">I think if we manage to find our tune — it won't matter if the land comes or not. With no expectations freedom no longer depends on where we live or what we have. If freedom can't be estimated with money, maybe it can with how close our life feels to who we are.</p>
           </div>
           
-          <div class="divider">------------------------------------</div>
+          <div class="divider">--------------------------------------</div>
           
           <!-- Region Section -->
           <div class="section">
@@ -271,7 +275,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             <p class="indent small">${allCrops.join(", ")}</p>
           </div>
           
-          <div class="divider">------------------------------</div>
+          <div class="divider">----------------------------------</div>
           
           <!-- Investment Breakdown -->
           <div class="section">
@@ -288,7 +292,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
                   .replace("Food Forest", "Forest")
                   .replace("Fruit Orchard", "Orchard")
                   .replace("Beekeeping", "Bees");
-                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.foodSystemsCost / receiptData.selectedFoodSystems.length)) + "€", 34)}</div>`;
+                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.foodSystemsCost / receiptData.selectedFoodSystems.length)) + "€", 36)}</div>`;
               }).join('')}
             ` : ''}
             
@@ -301,21 +305,21 @@ export default function ReceiptPrinter({ receiptData }: Props) {
                   .replace("Wood Stove", "Wood Heat")
                   .replace("Water Filtration System", "Water Filter")
                   .replace("Backup Generator", "Generator");
-                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.resourceSystemsCost / receiptData.selectedResourceSystems.length)) + "€", 34)}</div>`;
+                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.resourceSystemsCost / receiptData.selectedResourceSystems.length)) + "€", 36)}</div>`;
               }).join('')}
             ` : ''}
             
             ${receiptData.creativeSpaceCost > 0 && receiptData.creativeSpace ? `
               <p style="margin-top: 5px;"><strong>CREATIVE SPACE:</strong></p>
-              <div class="row indent">${formatLine(receiptData.creativeSpace, formatNumber(receiptData.creativeSpaceCost) + "€", 34)}</div>
+              <div class="row indent">${formatLine(receiptData.creativeSpace, formatNumber(receiptData.creativeSpaceCost) + "€", 36)}</div>
             ` : ''}
             
-            <div class="row" style="margin-top: 5px;">....................................</div>
+            <div class="row" style="margin-top: 3px;">......................................</div>
             
             <div class="row">${formatLine("Subtotal", formatNumber(receiptData.totalCost) + "€")}</div>
             <div class="row">${formatLine("Buffer 30%", formatNumber(financialCushion) + "€")}</div>
             
-            <div class="divider">====================================</div>
+            <div class="divider">======================================</div>
             
             <div class="row" style="font-weight: bold;">${formatLine("TOTAL", formatNumber(totalWithCushion) + "€")}</div>
             
@@ -368,7 +372,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           <!-- Savings Plan -->
           <div class="section">
             <h3>SAVINGS TIMELINE</h3>
-            <p class="small">Monthly savings needed:</p>
+            <p class="small" style="margin-top: 2px;">Monthly savings needed:</p>
             <p class="small">(7% annual return)</p>
             <div class="row">${formatLine("5 yrs", formatNumber(calculateMonthlySavings(5)) + "€/mo")}</div>
             <div class="row">${formatLine("7 yrs", formatNumber(calculateMonthlySavings(7)) + "€/mo")}</div>
@@ -381,7 +385,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           <div class="section center">
             <p style="margin-top: 5px;"><strong>The land is waiting</strong></p>
             
-            <div class="divider">==============================</div>
+            <div class="divider">======================================</div>
             <p class="small">${new Date().toLocaleDateString()}</p>
             <p><strong>Keep • Frame • Live</strong></p>
           </div>

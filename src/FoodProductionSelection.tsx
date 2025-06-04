@@ -44,13 +44,13 @@ const foodSystemLabels: Record<FoodSystemType, string> = {
 };
 
 const foodSystemIcons: Record<FoodSystemType, string> = {
-  vegetableGarden: "🥬",
-  foodForest: "🌳",
-  greenhouse: "🏠",
-  fruitOrchard: "🍎",
-  poultry: "🐔",
-  beekeeping: "🐝",
-  dairy: "🐄",
+  vegetableGarden: "",
+  foodForest: "",
+  greenhouse: "",
+  fruitOrchard: "",
+  poultry: "",
+  beekeeping: "",
+  dairy: "",
 };
 
 // Base space requirements
