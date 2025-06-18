@@ -5,7 +5,7 @@ import { Button } from "./DesignSystem";
 interface ReceiptData {
   // Region data
   subregion: Subregion;
-  
+
   // Cost breakdown
   landCost: number;
   homeCost: number;
@@ -14,16 +14,16 @@ interface ReceiptData {
   creativeSpaceCost: number;
   totalCost: number;
   annualCosts: number;
-  
+
   // Time commitment
   weeklyHours: number;
   peakHours: number;
-  
+
   // Selected systems
   selectedFoodSystems: string[];
   selectedResourceSystems: string[];
   creativeSpace: string | null;
-  
+
   // Family and land info
   familySize: number;
   landArea: number;
@@ -48,13 +48,13 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     const labelLength = label.length;
     const valueLength = value.length;
     const dotsNeeded = totalLength - labelLength - valueLength;
-    
+
     if (dotsNeeded < 2) {
       // If not enough space, truncate label
       const maxLabel = totalLength - valueLength - 2;
       return label.substring(0, maxLabel) + ".." + value;
     }
-    
+
     return label + ".".repeat(dotsNeeded) + value;
   };
 
@@ -62,38 +62,91 @@ export default function ReceiptPrinter({ receiptData }: Props) {
   const generateHTMLReceipt = () => {
     const financialCushion = Math.round(receiptData.totalCost * 0.3);
     const totalWithCushion = receiptData.totalCost + financialCushion;
-    const homeCostOnly = Math.round(receiptData.homeCost / (1 + receiptData.subregion.buildingLicensePercent / 100));
+    const homeCostOnly = Math.round(
+      receiptData.homeCost /
+        (1 + receiptData.subregion.buildingLicensePercent / 100)
+    );
     const licenseCost = receiptData.homeCost - homeCostOnly;
 
     const calculateMonthlySavings = (years: number): number => {
       const months = years * 12;
       const monthlyReturn = 0.07 / 12;
-      const factor = ((Math.pow(1 + monthlyReturn, months) - 1) / monthlyReturn);
+      const factor = (Math.pow(1 + monthlyReturn, months) - 1) / monthlyReturn;
       return Math.round(totalWithCushion / factor);
     };
 
     // Get traditional crops - safely handle missing properties
     const allCrops = [
       ...(receiptData.subregion.gardens || []),
-      ...(receiptData.subregion.otherFoodSources || [])
+      ...(receiptData.subregion.otherFoodSources || []),
     ].slice(0, 8);
 
     // Regional projects
     const regionalProjects: Record<string, string[]> = {
-      andalusia: ["Suryalila Centre", "Los Molinos", "Beneficio", "OASIS Foundation"],
-      asturias: ["Eco Aldea Network", "Permacultura Cantabria", "Transition Groups", "WWOOF Spain"],
+      andalusia: [
+        "Suryalila Centre",
+        "Los Molinos",
+        "Beneficio",
+        "OASIS Foundation",
+      ],
+      asturias: [
+        "Eco Aldea Network",
+        "Permacultura Cantabria",
+        "Transition Groups",
+        "WWOOF Spain",
+      ],
       algarve: ["Tamera", "Mount of Oaks", "Vale da Lama", "A Rocha"],
-      "northern-portugal": ["Aldeia de Cabrum", "Awakened Life", "Permalab", "Serra do Açor"],
-      provence: ["Les Amanins", "Terre & Humanisme", "Mas de Beaulieu", "Longo Maï"],
+      "northern-portugal": [
+        "Aldeia de Cabrum",
+        "Awakened Life",
+        "Permalab",
+        "Serra do Açor",
+      ],
+      provence: [
+        "Les Amanins",
+        "Terre & Humanisme",
+        "Mas de Beaulieu",
+        "Longo Maï",
+      ],
       brittany: ["Kerzello", "Keruzerh", "Ty Poul Farm", "Breton Network"],
-      bavaria: ["Schloss Tempelhof", "Lebensgarten", "Ökodorf Pestalozzi", "Transition Towns"],
-      brandenburg: ["Sieben Linden", "KuBiZ Projects", "Uferwerk", "Lebensraum"],
-      carinthia: ["Krameterhof", "Biotopia", "Alpine Permaculture", "Transition Kärnten"],
-      "south-bohemia": ["Permalot CZ", "Permakultura CS", "Camphill", "Sluňákov"],
-      dalarna: ["Stjärnsund", "Mundekulla", "Charlottendal", "Nordic Permaculture"]
+      bavaria: [
+        "Schloss Tempelhof",
+        "Lebensgarten",
+        "Ökodorf Pestalozzi",
+        "Transition Towns",
+      ],
+      brandenburg: [
+        "Sieben Linden",
+        "KuBiZ Projects",
+        "Uferwerk",
+        "Lebensraum",
+      ],
+      carinthia: [
+        "Krameterhof",
+        "Biotopia",
+        "Alpine Permaculture",
+        "Transition Kärnten",
+      ],
+      "south-bohemia": [
+        "Permalot CZ",
+        "Permakultura CS",
+        "Camphill",
+        "Sluňákov",
+      ],
+      dalarna: [
+        "Stjärnsund",
+        "Mundekulla",
+        "Charlottendal",
+        "Nordic Permaculture",
+      ],
     };
 
-    const projects = regionalProjects[receiptData.subregion.id] || ["Permaculture Groups", "Eco-Villages", "Transition Network", "WWOOF"];
+    const projects = regionalProjects[receiptData.subregion.id] || [
+      "Permaculture Groups",
+      "Eco-Villages",
+      "Transition Network",
+      "WWOOF",
+    ];
 
     // Generate random position for dot
     const frameWidthMM = 52;
@@ -293,15 +346,27 @@ export default function ReceiptPrinter({ receiptData }: Props) {
                  style="margin-bottom: 8px;"
                  onerror="this.style.display='none';" />
             
-            <p><strong>CLIMATE:</strong> ${(receiptData.subregion.climate || []).join(", ")}</p>
-            <p><strong>LANDSCAPE:</strong> ${(receiptData.subregion.landscape || []).join(", ")}</p>
-            <p><strong>RAINFALL:</strong> ${receiptData.subregion.rainfall}mm/year</p>
-            <p><strong>LAND:</strong> ${receiptData.subregion.averagePricePerSqm}€/m²</p>
+            <p><strong>CLIMATE:</strong> ${(
+              receiptData.subregion.climate || []
+            ).join(", ")}</p>
+            <p><strong>LANDSCAPE:</strong> ${(
+              receiptData.subregion.landscape || []
+            ).join(", ")}</p>
+            <p><strong>RAINFALL:</strong> ${
+              receiptData.subregion.rainfall
+            }mm/year</p>
+            <p><strong>LAND:</strong> ${
+              receiptData.subregion.averagePricePerSqm
+            }€/m²</p>
             
-            ${allCrops.length > 0 ? `
+            ${
+              allCrops.length > 0
+                ? `
             <p><strong>TRADITIONAL CROPS:</strong></p>
             <p class="indent small">${allCrops.join(", ")}</p>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
           
           <div class="divider">----------------------------------</div>
@@ -310,62 +375,147 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           <div class="section">
             <h3>INVESTMENT BREAKDOWN</h3>
             
-            <div class="row">${formatLine("Land", formatNumber(receiptData.landCost) + "€")}</div>
-            <div class="row">${formatLine("Home", formatNumber(homeCostOnly) + "€")}</div>
-            <div class="row">${formatLine("License", formatNumber(licenseCost) + "€")}</div>
+            <div class="row">${formatLine(
+              "Land",
+              formatNumber(receiptData.landCost) + "€"
+            )}</div>
+            <div class="row">${formatLine(
+              "Home",
+              formatNumber(homeCostOnly) + "€"
+            )}</div>
+            <div class="row">${formatLine(
+              "License",
+              formatNumber(licenseCost) + "€"
+            )}</div>
             
-            ${receiptData.selectedFoodSystems.length > 0 ? `
+            ${
+              receiptData.selectedFoodSystems.length > 0
+                ? `
               <p style="margin-top: 5px;"><strong>FOOD SYSTEMS:</strong></p>
-              ${receiptData.selectedFoodSystems.map(system => {
-                const shortName = system.replace("Vegetable Garden", "Vegetables")
-                  .replace("Food Forest", "Forest")
-                  .replace("Fruit Orchard", "Orchard")
-                  .replace("Beekeeping", "Bees");
-                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.foodSystemsCost / receiptData.selectedFoodSystems.length)) + "€", 36)}</div>`;
-              }).join('')}
-            ` : ''}
+              ${receiptData.selectedFoodSystems
+                .map((system) => {
+                  const shortName = system
+                    .replace("Vegetable Garden", "Vegetables")
+                    .replace("Food Forest", "Forest")
+                    .replace("Fruit Orchard", "Orchard")
+                    .replace("Beekeeping", "Bees");
+                  return `<div class="row indent">${formatLine(
+                    shortName,
+                    formatNumber(
+                      Math.round(
+                        receiptData.foodSystemsCost /
+                          receiptData.selectedFoodSystems.length
+                      )
+                    ) + "€",
+                    36
+                  )}</div>`;
+                })
+                .join("")}
+            `
+                : ""
+            }
             
-            ${receiptData.selectedResourceSystems.length > 0 ? `
+            ${
+              receiptData.selectedResourceSystems.length > 0
+                ? `
               <p style="margin-top: 5px;"><strong>INFRASTRUCTURE:</strong></p>
-              ${receiptData.selectedResourceSystems.map(system => {
-                const shortName = system.replace("Solar Power System", "Solar")
-                  .replace("Water Well", "Well")
-                  .replace("Rainwater Harvesting", "Rainwater")
-                  .replace("Wood Stove", "Wood Heat")
-                  .replace("Water Filtration System", "Water Filter")
-                  .replace("Backup Generator", "Generator");
-                return `<div class="row indent">${formatLine(shortName, formatNumber(Math.round(receiptData.resourceSystemsCost / receiptData.selectedResourceSystems.length)) + "€", 36)}</div>`;
-              }).join('')}
-            ` : ''}
+              ${receiptData.selectedResourceSystems
+                .map((system) => {
+                  const shortName = system
+                    .replace("Solar Power System", "Solar")
+                    .replace("Water Well", "Well")
+                    .replace("Rainwater Harvesting", "Rainwater")
+                    .replace("Wood Stove", "Wood Heat")
+                    .replace("Water Filtration System", "Water Filter")
+                    .replace("Backup Generator", "Generator");
+                  return `<div class="row indent">${formatLine(
+                    shortName,
+                    formatNumber(
+                      Math.round(
+                        receiptData.resourceSystemsCost /
+                          receiptData.selectedResourceSystems.length
+                      )
+                    ) + "€",
+                    36
+                  )}</div>`;
+                })
+                .join("")}
+            `
+                : ""
+            }
             
-            ${receiptData.creativeSpaceCost > 0 && receiptData.creativeSpace ? `
+            ${
+              receiptData.creativeSpaceCost > 0 && receiptData.creativeSpace
+                ? `
               <p style="margin-top: 5px;"><strong>CREATIVE SPACE:</strong></p>
-              <div class="row indent">${formatLine(receiptData.creativeSpace, formatNumber(receiptData.creativeSpaceCost) + "€", 36)}</div>
-            ` : ''}
+              <div class="row indent">${formatLine(
+                receiptData.creativeSpace,
+                formatNumber(receiptData.creativeSpaceCost) + "€",
+                36
+              )}</div>
+            `
+                : ""
+            }
             
             <div class="row" style="margin-top: 3px;">......................................</div>
             
-            <div class="row">${formatLine("Subtotal", formatNumber(receiptData.totalCost) + "€")}</div>
-            <div class="row">${formatLine("Buffer 30%", formatNumber(financialCushion) + "€")}</div>
+            <div class="row">${formatLine(
+              "Subtotal",
+              formatNumber(receiptData.totalCost) + "€"
+            )}</div>
+            <div class="row">${formatLine(
+              "Buffer 30%",
+              formatNumber(financialCushion) + "€"
+            )}</div>
             
             <div class="divider">======================================</div>
             
-            <div class="row" style="font-weight: bold;">${formatLine("TOTAL", formatNumber(totalWithCushion) + "€")}</div>
+            <div class="row" style="font-weight: bold;">${formatLine(
+              "TOTAL",
+              formatNumber(totalWithCushion) + "€"
+            )}</div>
             
-            ${receiptData.annualCosts > 0 ? `
+            ${
+              receiptData.annualCosts > 0
+                ? `
               <p style="margin-top: 5px;"><strong>ANNUAL COSTS:</strong></p>
-              <div class="row">${formatLine("Total/year", formatNumber(receiptData.annualCosts) + "€")}</div>
-              <div class="row">${formatLine("Per month", formatNumber(Math.round(receiptData.annualCosts / 12)) + "€")}</div>
-            ` : ''}
+              <div class="row">${formatLine(
+                "Total/year",
+                formatNumber(receiptData.annualCosts) + "€"
+              )}</div>
+              <div class="row">${formatLine(
+                "Per month",
+                formatNumber(Math.round(receiptData.annualCosts / 12)) + "€"
+              )}</div>
+            `
+                : ""
+            }
             
-            ${receiptData.weeklyHours > 0 ? `
+            ${
+              receiptData.weeklyHours > 0
+                ? `
               <p style="margin-top: 5px;"><strong>TIME COMMITMENT:</strong></p>
-              <div class="row">${formatLine("Average", receiptData.weeklyHours + "h/week")}</div>
-              ${receiptData.peakHours > receiptData.weeklyHours ? `
-                <div class="row">${formatLine("Peak season", receiptData.peakHours + "h/week")}</div>
-              ` : ''}
-              <div class="row">${formatLine("Annual hours", Math.round(receiptData.weeklyHours * 52) + "h")}</div>
-            ` : ''}
+              <div class="row">${formatLine(
+                "Average",
+                receiptData.weeklyHours + "h/week"
+              )}</div>
+              ${
+                receiptData.peakHours > receiptData.weeklyHours
+                  ? `
+                <div class="row">${formatLine(
+                  "Peak season",
+                  receiptData.peakHours + "h/week"
+                )}</div>
+              `
+                  : ""
+              }
+              <div class="row">${formatLine(
+                "Annual hours",
+                Math.round(receiptData.weeklyHours * 52) + "h"
+              )}</div>
+            `
+                : ""
+            }
           </div>
           
           <div class="divider">------------------------------</div>
@@ -373,7 +523,10 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           <!-- Community -->
           <div class="section">
             <h3>COMMUNITY</h3>
-            ${projects.slice(0, 4).map(project => `<p class="small">• ${project}</p>`).join('')}
+            ${projects
+              .slice(0, 4)
+              .map((project) => `<p class="small">• ${project}</p>`)
+              .join("")}
           </div>
           
           <div class="divider">------------------------------</div>
@@ -403,9 +556,18 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             <h3>SAVINGS TIMELINE</h3>
             <p class="small" style="margin-top: 2px;">Monthly savings needed:</p>
             <p class="small">(7% annual return)</p>
-            <div class="row">${formatLine("5 yrs", formatNumber(calculateMonthlySavings(5)) + "€/mo")}</div>
-            <div class="row">${formatLine("7 yrs", formatNumber(calculateMonthlySavings(7)) + "€/mo")}</div>
-            <div class="row">${formatLine("10 yrs", formatNumber(calculateMonthlySavings(10)) + "€/mo")}</div>
+            <div class="row">${formatLine(
+              "5 yrs",
+              formatNumber(calculateMonthlySavings(5)) + "€/mo"
+            )}</div>
+            <div class="row">${formatLine(
+              "7 yrs",
+              formatNumber(calculateMonthlySavings(7)) + "€/mo"
+            )}</div>
+            <div class="row">${formatLine(
+              "10 yrs",
+              formatNumber(calculateMonthlySavings(10)) + "€/mo"
+            )}</div>
           </div>
           
           <div class="divider">------------------------------</div>
@@ -431,11 +593,11 @@ export default function ReceiptPrinter({ receiptData }: Props) {
 
   const printReceipt = () => {
     setIsPrinting(true);
-    
-    const printWindow = window.open('', 'PRINT', 'height=800,width=400');
-    
+
+    const printWindow = window.open("", "PRINT", "height=800,width=400");
+
     if (!printWindow) {
-      alert('Please allow popups for this website');
+      alert("Please allow popups for this website");
       setIsPrinting(false);
       return;
     }
@@ -443,7 +605,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     const htmlContent = generateHTMLReceipt();
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-    
+
     // Wait for content to load
     setTimeout(() => {
       printWindow.print();
@@ -460,7 +622,9 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.html`;
+    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${
+      new Date().toISOString().split("T")[0]
+    }.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -471,28 +635,32 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     // Generate text version without images for backup
     const lines: string[] = [];
     const lineWidth = 28;
-    
+
     const center = (text: string) => {
       if (text.length >= lineWidth) return text.substring(0, lineWidth);
       const padding = Math.floor((lineWidth - text.length) / 2);
       return " ".repeat(Math.max(0, padding)) + text;
     };
-    
+
     // Simple text version...
     lines.push(center("OFF-GRID RECEIPT"));
-    lines.push(center(`${receiptData.subregion.name}, ${receiptData.subregion.country}`));
+    lines.push(
+      center(`${receiptData.subregion.name}, ${receiptData.subregion.country}`)
+    );
     lines.push(center(new Date().toLocaleDateString()));
     lines.push("");
     lines.push(`Total: ${receiptData.totalCost.toLocaleString()}€`);
     lines.push(`Land: ${(receiptData.landArea / 10000).toFixed(1)} ha`);
     lines.push(`Family: ${receiptData.familySize} people`);
-    
+
     const textContent = lines.join("\n");
     const blob = new Blob([textContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${new Date().toISOString().split("T")[0]}.txt`;
+    a.download = `offgrid-receipt-${receiptData.subregion.name.toLowerCase()}-${
+      new Date().toISOString().split("T")[0]
+    }.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -501,29 +669,27 @@ export default function ReceiptPrinter({ receiptData }: Props) {
 
   return (
     <div className="border border-black p-8 mt-8">
-      <h3 className="text-base font-medium mb-4">Print Your Off-Grid Receipt</h3>
-      
+      <h3 className="text-base font-medium mb-4">
+        Print Your Off-Grid Receipt
+      </h3>
+
       <p className="text-xs text-gray-600 mb-6">
-        Get a physical reminder of your off-grid plan. Print this receipt and keep it 
-        as your commitment to a life of freedom and self-sufficiency.
+        Get a physical reminder of your off-grid plan. Print this receipt and
+        keep it as your commitment to a life of freedom and self-sufficiency.
       </p>
-      
+
       <div className="space-y-4">
-        <Button 
-          onClick={printReceipt} 
-          disabled={isPrinting}
-          fullWidth
-        >
+        <Button onClick={printReceipt} disabled={isPrinting} fullWidth>
           {isPrinting ? "Opening print dialog..." : "Print Receipt"}
         </Button>
-        
+
         <button
           onClick={downloadReceiptAsHTML}
           className="w-full text-xs text-gray-600 underline hover:text-black transition-colors"
         >
           Download HTML receipt (with image)
         </button>
-        
+
         <button
           onClick={downloadReceiptAsText}
           className="w-full text-xs text-gray-600 underline hover:text-black transition-colors"
@@ -531,7 +697,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
           Download text receipt (backup)
         </button>
       </div>
-      
+
       <div className="mt-6 p-4 bg-gray-50 border border-gray-200">
         <h4 className="text-xs font-medium mb-2">Printing tips:</h4>
         <ul className="text-xs text-gray-600 space-y-1">
