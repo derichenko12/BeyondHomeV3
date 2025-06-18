@@ -21,7 +21,6 @@ type StepType =
   | "welcome"
   | "tags"
   | "subregions"
-  | "family"
   | "land-and-home"
   | "food"
   | "resources"
@@ -40,7 +39,7 @@ export default function OffGridCJM() {
   const [selectedSubregion, setSelectedSubregion] = useState<string | null>(
     null
   );
-  const [familySize, setFamilySize] = useState<number>(2);
+  const [familySize, setFamilySize] = useState<number>(2); // Default family size
   const [landArea, setLandArea] = useState<number>(5000); // m²
   const [landPrice, setLandPrice] = useState<number>(0);
   const [homeArea, setHomeArea] = useState<number>(0);
@@ -142,23 +141,8 @@ export default function OffGridCJM() {
           selectedSubregion={selectedSubregion}
           onSelect={setSelectedSubregion}
           onContinue={() => {
-            if (selectedSubregion) setStep("family");
+            if (selectedSubregion) setStep("land-and-home");
           }}
-        />
-      </>
-    );
-  }
-
-  if (step === "family") {
-    return (
-      <>
-        {renderCart()}
-        <FamilySizeSelection
-          onContinue={(size) => {
-            setFamilySize(size);
-            setStep("land-and-home");
-          }}
-          onBack={() => setStep("subregions")}
         />
       </>
     );
@@ -191,7 +175,7 @@ export default function OffGridCJM() {
             setStep("food");
           }}
           onUpdateCart={stableUpdateCart}
-          onBack={() => setStep("family")}
+          onBack={() => setStep("subregions")}
         />
       </>
     );

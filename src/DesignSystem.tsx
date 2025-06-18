@@ -269,17 +269,16 @@ export const SummaryBox: React.FC<SummaryBoxProps> = ({ title, children }) => {
 };
 
 // ========================
-// STEPS - Updated for combined land & home step
+// STEPS - Updated without family step
 // ========================
 
 export const STEPS = {
-  WELCOME: { number: 1, label: "Welcome", total: 9 },
-  TAGS: { number: 2, label: "Preferences", total: 9 },
-  SUBREGIONS: { number: 3, label: "Location", total: 9 },
-  FAMILY: { number: 4, label: "Family Size", total: 9 },
-  LAND_AND_HOME: { number: 5, label: "Land & Home", total: 9 },
-  FOOD: { number: 6, label: "Food Production", total: 9 },
-  RESOURCES: { number: 7, label: "Resources", total: 9 },
-  CREATIVE: { number: 8, label: "Creative Space", total: 9 },
-  RECEIPT: { number: 9, label: "Summary", total: 9 },
+  WELCOME: { number: 1, label: "Welcome", total: 8 },
+  TAGS: { number: 2, label: "Preferences", total: 8 },
+  SUBREGIONS: { number: 3, label: "Location", total: 8 },
+  LAND_AND_HOME: { number: 4, label: "Land & Home", total: 8 },
+  FOOD: { number: 5, label: "Food Production", total: 8 },
+  RESOURCES: { number: 6, label: "Resources", total: 8 },
+  CREATIVE: { number: 7, label: "Creative Space", total: 8 },
+  RECEIPT: { number: 8, label: "Summary", total: 8 },
 } as const;
