@@ -109,8 +109,22 @@ export default function ReceiptPrinter({ receiptData }: Props) {
         <meta charset="UTF-8">
         <title>Off-Grid Receipt</title>
         <style>
+          @font-face {
+            font-family: 'ReceiptBody';
+            src: url('/fonts/receipt-body.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+          
+          @font-face {
+            font-family: 'ReceiptHeading';
+            src: url('/fonts/receipt-heading.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+          
           body {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'ReceiptBody';
             font-size: 12px;
             line-height: 1.2;
             margin: 0;
@@ -119,17 +133,23 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             width: 57mm;
           }
           * {
-            font-family: 'Courier New', Courier, monospace !important;
+            font-family: 'ReceiptBody' !important;
           }
           .receipt {
             width: 57mm;
             padding: 0;
             margin: 0;
           }
-          h1, h2, h3, p {
+          h1, h2, h3 {
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'ReceiptHeading' !important;
+            font-weight: normal !important;
+          }
+          p {
+            margin: 0;
+            padding: 0;
+            font-family: 'ReceiptBody';
           }
           h1 {
             font-size: 12px;
@@ -164,7 +184,11 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             font-size: 12px;
             margin: 2px 0;
             white-space: pre;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'ReceiptBody';
+          }
+          strong {
+            font-family: 'ReceiptHeading' !important;
+            font-weight: normal !important;
           }
           .center { text-align: center; }
           .small { font-size: 12px; }
@@ -266,6 +290,7 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             <img src="/regions/${receiptData.subregion.id}.png" 
                  alt="${receiptData.subregion.name}" 
                  class="region-photo"
+                 style="margin-bottom: 8px;"
                  onerror="this.style.display='none';" />
             
             <p><strong>CLIMATE:</strong> ${(receiptData.subregion.climate || []).join(", ")}</p>
