@@ -82,12 +82,10 @@ export default function OffGridCJM() {
 
           <div className="space-y-6 max-w-3xl mx-auto">
             <p className="text-[10px] font-mono leading-relaxed text-gray-700">
-              The core issue with the mainstream living system is not merely economic, but existential. We live in a system designed for efficiency, not well-being. It rewards speed over depth, profit over care, and constant growth over balance. As a result, many of us are getting exhausted — working more to afford less, disconnected from the outside world, from community, and often from ourselves. Housing is unaffordable. Food is industrial. Time feels owned by someone else. The mainstream model tells us that freedom is access — to services, to markets, to brands and to endless options — but rarely to meaning, or to the guilt-free luxury of doing nothing.
+            A tool for planning a self-sufficient homestead. 
+Find out the real cost in terms of money, time and effort.
             </p>
-            
-            <p className="text-[10px] font-mono leading-relaxed text-gray-700">
-              This project begins where that system ends. It's about reclaiming the basics — food, shelter, energy, time — not as survival, but as a foundation for a different kind of life system. A slower, wiser, more creative life. One that doesn't depend on escape, but on getting yourself together and rebuilding from the ground up. For those who feel disconnected in consumption. For seekers longing for clarity and reconnection, for families searching for a more rooted and self-determined way to raise their children, for creatives burned out by speed and disconnected from craft, for digital nomads craving stillness after years of movement, and for those who work with their hands and want their skills to be part of something lasting. It's for anyone ready to shift from surviving to shaping — to design a system that feels right. A freedom that makes sense just for you.
-            </p>
+          
           </div>
 
           <div className="text-center mt-12">

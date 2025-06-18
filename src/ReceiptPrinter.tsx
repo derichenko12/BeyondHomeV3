@@ -72,11 +72,10 @@ export default function ReceiptPrinter({ receiptData }: Props) {
       return Math.round(totalWithCushion / factor);
     };
 
-    // Get traditional crops
+    // Get traditional crops - safely handle missing properties
     const allCrops = [
-      ...receiptData.subregion.vegetables,
-      ...receiptData.subregion.fruitsAndNuts,
-      ...receiptData.subregion.otherFoodProduction
+      ...(receiptData.subregion.gardens || []),
+      ...(receiptData.subregion.otherFoodSources || [])
     ].slice(0, 8);
 
     // Regional projects
@@ -196,10 +195,6 @@ export default function ReceiptPrinter({ receiptData }: Props) {
             background: black;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            /* For SVG dot uncomment and add your SVG:
-            background: url('data:image/svg+xml;utf8,<svg width="4" height="4" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="2" fill="black"/></svg>') no-repeat center;
-            background-size: 4px 4px;
-            */
           }
           
           @media print {
@@ -265,14 +260,15 @@ export default function ReceiptPrinter({ receiptData }: Props) {
                  class="region-photo"
                  onerror="this.style.display='none';" />
             
-            <p><strong>CLIMATE:</strong> ${receiptData.subregion.climate.join(", ")}</p>
-            <p><strong>LANDSCAPE:</strong> ${receiptData.subregion.landscape.join(", ")}</p>
+            <p><strong>CLIMATE:</strong> ${(receiptData.subregion.climate || []).join(", ")}</p>
+            <p><strong>LANDSCAPE:</strong> ${(receiptData.subregion.landscape || []).join(", ")}</p>
             <p><strong>RAINFALL:</strong> ${receiptData.subregion.rainfall}mm/year</p>
             <p><strong>LAND:</strong> ${receiptData.subregion.averagePricePerSqm}€/m²</p>
-            ${receiptData.subregion.energy.length > 0 ? `<p><strong>ENERGY:</strong> ${receiptData.subregion.energy.join(", ")}</p>` : ''}
             
+            ${allCrops.length > 0 ? `
             <p><strong>TRADITIONAL CROPS:</strong></p>
             <p class="indent small">${allCrops.join(", ")}</p>
+            ` : ''}
           </div>
           
           <div class="divider">----------------------------------</div>
@@ -415,16 +411,14 @@ export default function ReceiptPrinter({ receiptData }: Props) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
     
-    // Wait for content and images to load
-    printWindow.onload = () => {
+    // Wait for content to load
+    setTimeout(() => {
+      printWindow.print();
       setTimeout(() => {
-        printWindow.print();
-        setTimeout(() => {
-          printWindow.close();
-          setIsPrinting(false);
-        }, 1000);
-      }, 500);
-    };
+        printWindow.close();
+        setIsPrinting(false);
+      }, 1000);
+    }, 500);
   };
 
   const downloadReceiptAsHTML = () => {
