@@ -226,6 +226,14 @@ export default function ReceiptPrinter({ receiptData }: Props) {
       </head>
       <body>
         <div class="receipt">
+          <!-- Logo -->
+          <div class="section">
+            <img src="/loam-logo.svg" 
+                 alt="Loam" 
+                 style="width: 100%; max-width: 57mm; height: auto; margin: 0 0 8px 0;"
+                 onerror="this.style.display='none';" />
+          </div>
+          
           <!-- Header -->
           <h1>OFF-GRID REALITY CHECK</h1>
           <div class="divider">======================================</div>
