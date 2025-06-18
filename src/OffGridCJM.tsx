@@ -6,8 +6,12 @@ import FamilySizeSelection from "./FamilySizeSelection";
 import LandSizeSlider from "./LandSizeSelection";
 import LivingSpaceSelection from "./LivingSpaceSelection";
 import FoodProductionSelection from "./FoodProductionSelection";
-import SimpleResourceSelection, { SelectedResourceData } from "./SimpleResourceSelection";
-import CreativeSpaceSelection, { CreativeSpace } from "./CreativeSpaceSelection";
+import SimpleResourceSelection, {
+  SelectedResourceData,
+} from "./SimpleResourceSelection";
+import CreativeSpaceSelection, {
+  CreativeSpace,
+} from "./CreativeSpaceSelection";
 import Cart from "./Cart";
 import ReceiptPrinter from "./ReceiptPrinter";
 import { useCart, CartItem } from "./CartContext";
@@ -50,16 +54,23 @@ export default function OffGridCJM() {
   const [selectedFoodSystems, setSelectedFoodSystems] = useState<
     SelectedFoodSystem[]
   >([]);
-  const [selectedResources, setSelectedResources] = useState<SelectedResourceData[]>([]);
-  const [selectedCreativeSpace, setSelectedCreativeSpace] = useState<CreativeSpace | { name: string; budget: number } | null>(null);
+  const [selectedResources, setSelectedResources] = useState<
+    SelectedResourceData[]
+  >([]);
+  const [selectedCreativeSpace, setSelectedCreativeSpace] = useState<
+    CreativeSpace | { name: string; budget: number } | null
+  >(null);
   const [baseCartItems, setBaseCartItems] = useState<CartItem[]>([]);
 
   const { updateCart, items: cartItems } = useCart();
 
   // Memoize the updateCart callback to prevent infinite loops
-  const stableUpdateCart = useCallback((items: CartItem[]) => {
-    updateCart(items);
-  }, [updateCart]);
+  const stableUpdateCart = useCallback(
+    (items: CartItem[]) => {
+      updateCart(items);
+    },
+    [updateCart]
+  );
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -79,18 +90,12 @@ export default function OffGridCJM() {
             stepLabel={STEPS.WELCOME.label}
           />
 
-          <PageHeader
-            title="Welcome to Loam"
-            subtitle=""
-          />
+          <PageHeader title="Welcome to Loam" subtitle="" />
 
           <div className="space-y-6 max-w-3xl mx-auto">
             <p className="text-[10px] font-mono leading-relaxed text-gray-700">
-              The core issue with the mainstream living system is not merely economic, but existential. We live in a system designed for efficiency, not well-being. It rewards speed over depth, profit over care, and constant growth over balance. As a result, many of us are getting exhausted — working more to afford less, disconnected from the outside world, from community, and often from ourselves. Housing is unaffordable. Food is industrial. Time feels owned by someone else. The mainstream model tells us that freedom is access — to services, to markets, to brands and to endless options — but rarely to meaning, or to the guilt-free luxury of doing nothing.
-            </p>
-            
-            <p className="text-[10px] font-mono leading-relaxed text-gray-700">
-              This project begins where that system ends. It's about reclaiming the basics — food, shelter, energy, time — not as survival, but as a foundation for a different kind of life system. A slower, wiser, more creative life. One that doesn't depend on escape, but on getting yourself together and rebuilding from the ground up. For those who feel disconnected in consumption. For seekers longing for clarity and reconnection, for families searching for a more rooted and self-determined way to raise their children, for creatives burned out by speed and disconnected from craft, for digital nomads craving stillness after years of movement, and for those who work with their hands and want their skills to be part of something lasting. It's for anyone ready to shift from surviving to shaping — to design a system that feels right. A freedom that makes sense just for you.
+              A tool for planning a self-sufficient Homestead. Find out the real
+              cost in terms of money, time and effort.
             </p>
           </div>
 
@@ -121,12 +126,10 @@ export default function OffGridCJM() {
     const scoredSubregions: (Subregion & { score: number })[] =
       subregionsData.map((subregion) => {
         const allTags = [
-          ...subregion.vegetables,
-          ...subregion.fruitsAndNuts,
-          ...subregion.otherFoodProduction,
-          ...subregion.climate,
           ...subregion.landscape,
-          ...subregion.energy,
+          ...subregion.climate,
+          ...subregion.gardens,
+          ...subregion.otherFoodSources,
         ];
         const score = allTags.filter((tag) =>
           selectedTags.includes(tag)
@@ -305,7 +308,6 @@ export default function OffGridCJM() {
     );
   }
 
-  
   if (step === "receipt") {
     const moneyItems = cartItems.filter((item) => item.type !== "time");
     const timeItems = cartItems.filter((item) => item.type === "time");
@@ -327,10 +329,10 @@ export default function OffGridCJM() {
       (sum, item) => sum + item.value,
       0
     );
-    
+
     // Calculate resource time separately
-    const resourceTimeItems = timeItems.filter(item => 
-      !item.label.includes("(avg)") && !item.label.includes("(peak)")
+    const resourceTimeItems = timeItems.filter(
+      (item) => !item.label.includes("(avg)") && !item.label.includes("(peak)")
     );
     const totalResourceTime = resourceTimeItems.reduce(
       (sum, item) => sum + item.value,
@@ -340,25 +342,36 @@ export default function OffGridCJM() {
 
     // Prepare receipt data
     const subregion = subregionsData.find((r) => r.id === selectedSubregion)!;
-    
+
     // Calculate costs by category
-    const landCost = moneyItems.find(item => item.label.includes("Land"))?.value || 0;
-    const homeCost = moneyItems.find(item => item.label.includes("Home"))?.value || 0;
-    
+    const landCost =
+      moneyItems.find((item) => item.label.includes("Land"))?.value || 0;
+    const homeCost =
+      moneyItems.find((item) => item.label.includes("Home"))?.value || 0;
+
     const foodSystemsCost = moneyItems
-      .filter(item => selectedFoodSystems.some(fs => item.label.includes(fs.type)))
+      .filter((item) =>
+        selectedFoodSystems.some((fs) => item.label.includes(fs.type))
+      )
       .reduce((sum, item) => sum + item.value, 0);
-    
+
     const resourceSystemsCost = moneyItems
-      .filter(item => selectedResources.some(r => item.label.includes(r.resource.name)))
+      .filter((item) =>
+        selectedResources.some((r) => item.label.includes(r.resource.name))
+      )
       .reduce((sum, item) => sum + item.value, 0);
-    
-    const creativeSpaceCost = moneyItems
-      .filter(item => selectedCreativeSpace && item.label.includes(selectedCreativeSpace.name))
-      .reduce((sum, item) => sum + item.value, 0) || 0;
-    
+
+    const creativeSpaceCost =
+      moneyItems
+        .filter(
+          (item) =>
+            selectedCreativeSpace &&
+            item.label.includes(selectedCreativeSpace.name)
+        )
+        .reduce((sum, item) => sum + item.value, 0) || 0;
+
     const annualCosts = moneyItems
-      .filter(item => item.label.includes("Annual"))
+      .filter((item) => item.label.includes("Annual"))
       .reduce((sum, item) => sum + item.value, 0);
 
     const receiptData = {
@@ -372,8 +385,8 @@ export default function OffGridCJM() {
       annualCosts,
       weeklyHours: totalWeeklyTime,
       peakHours: totalPeakTime + totalResourceTime,
-      selectedFoodSystems: selectedFoodSystems.map(fs => fs.type),
-      selectedResourceSystems: selectedResources.map(r => r.resource.name),
+      selectedFoodSystems: selectedFoodSystems.map((fs) => fs.type),
+      selectedResourceSystems: selectedResources.map((r) => r.resource.name),
       creativeSpace: selectedCreativeSpace?.name || null,
       familySize,
       landArea,
@@ -440,7 +453,10 @@ export default function OffGridCJM() {
                     );
                   })}
                   {resourceTimeItems.map((item, index) => (
-                    <div key={`resource-${index}`} className="flex justify-between text-xs">
+                    <div
+                      key={`resource-${index}`}
+                      className="flex justify-between text-xs"
+                    >
                       <span>{item.label.replace(" Time", "")}</span>
                       <span className="font-medium text-blue-700">
                         {item.value} hrs/week
@@ -458,12 +474,14 @@ export default function OffGridCJM() {
                       <div className="flex justify-between text-sm font-medium">
                         <span>Peak Season Hours</span>
                         <span className="text-blue-700">
-                          {(totalPeakTime + totalResourceTime).toFixed(1)} hrs/week
+                          {(totalPeakTime + totalResourceTime).toFixed(1)}{" "}
+                          hrs/week
                         </span>
                       </div>
                     )}
                     <p className="text-xs text-gray-600 mt-2">
-                      {totalWeeklyTime < 10 && "Perfect for weekends and evenings"}
+                      {totalWeeklyTime < 10 &&
+                        "Perfect for weekends and evenings"}
                       {totalWeeklyTime >= 10 &&
                         totalWeeklyTime < 20 &&
                         "Part-time commitment"}
@@ -478,15 +496,17 @@ export default function OffGridCJM() {
             )}
 
             {/* Selected systems summary */}
-            {(selectedFoodSystems.length > 0 || selectedResources.length > 0 || selectedCreativeSpace) && (
+            {(selectedFoodSystems.length > 0 ||
+              selectedResources.length > 0 ||
+              selectedCreativeSpace) && (
               <div className="border border-black p-8 mt-6">
-                <h4 className="text-base font-medium mb-4">
-                  Selected Systems
-                </h4>
-                
+                <h4 className="text-base font-medium mb-4">Selected Systems</h4>
+
                 {selectedFoodSystems.length > 0 && (
                   <div className="mb-4">
-                    <h5 className="text-sm font-medium mb-2">Food Production</h5>
+                    <h5 className="text-sm font-medium mb-2">
+                      Food Production
+                    </h5>
                     <div className="space-y-1">
                       {selectedFoodSystems.map((system, index) => (
                         <div key={index} className="text-xs">
@@ -499,18 +519,26 @@ export default function OffGridCJM() {
                     </div>
                   </div>
                 )}
-                
+
                 {selectedResources.length > 0 && (
                   <div className="mb-4">
-                    <h5 className="text-sm font-medium mb-2">Infrastructure Systems</h5>
+                    <h5 className="text-sm font-medium mb-2">
+                      Infrastructure Systems
+                    </h5>
                     <div className="space-y-1">
                       {selectedResources.map((item, index) => {
                         const resource = item.resource;
-                        const variant = resource.variants?.find(v => v.id === item.variantId);
+                        const variant = resource.variants?.find(
+                          (v) => v.id === item.variantId
+                        );
                         return (
                           <div key={index} className="text-xs">
                             <span className="font-medium">{resource.name}</span>
-                            {variant && <span className="text-gray-600 ml-1">({variant.name})</span>}
+                            {variant && (
+                              <span className="text-gray-600 ml-1">
+                                ({variant.name})
+                              </span>
+                            )}
                             <span className="text-gray-600 ml-2">
                               (€{resource.annualCost}/year)
                             </span>
@@ -520,7 +548,7 @@ export default function OffGridCJM() {
                     </div>
                   </div>
                 )}
-                
+
                 {selectedCreativeSpace && (
                   <div>
                     <h5 className="text-sm font-medium mb-2">Creative Space</h5>
@@ -528,8 +556,10 @@ export default function OffGridCJM() {
                       <span className="font-medium">
                         {selectedCreativeSpace.name}
                       </span>
-                      {'area' in selectedCreativeSpace && (
-                        <span className="text-gray-600 ml-2">({selectedCreativeSpace.area} m²)</span>
+                      {"area" in selectedCreativeSpace && (
+                        <span className="text-gray-600 ml-2">
+                          ({selectedCreativeSpace.area} m²)
+                        </span>
                       )}
                     </div>
                   </div>

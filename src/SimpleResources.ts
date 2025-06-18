@@ -98,7 +98,7 @@ export const simpleResources: SimpleResource[] = [
     setupCost: 8000,
     annualCost: 200,
     weeklyHours: 0.5,
-    availableFor: ["Sufficient Sun"],
+    availableFor: ["Warm and sunny"],
     icon: "",
     variants: [
       { id: "3kw", name: "3kW Basic (essential needs)", setupCost: 8000, annualCost: 200 },
@@ -114,8 +114,8 @@ export const simpleResources: SimpleResource[] = [
     setupCost: 12000,
     annualCost: 500,
     weeklyHours: 1,
-    availableFor: ["Coastline", "Mountains", "Meadow", "High Wind"],
-    notRecommendedFor: ["Forests"],
+    availableFor: ["Coastline", "Mountains", "Meadow"],
+    notRecommendedFor: ["Forest"],
     icon: "",
   },
   {

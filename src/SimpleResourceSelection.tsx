@@ -42,12 +42,11 @@ export default function SimpleResourceSelection({
   onBack,
   existingCartItems,
 }: Props) {
-  // Combine all region tags
-  const regionTags = useMemo(() => [
-    ...subregion.climate,
-    ...subregion.landscape,
-    ...subregion.energy,
-  ], [subregion]);
+// Combine all region tags
+const regionTags = useMemo(() => [
+  ...subregion.climate,
+  ...subregion.landscape,
+], [subregion]);
 
   // Get available resources for this region
   const availableResources = useMemo(

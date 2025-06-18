@@ -22,15 +22,13 @@ export interface Subregion {
   region: string;
   landscape: string[];
   climate: string[];
-  energy: string[];
+  gardens: string[];
+  otherFoodSources: string[];
   description: string;
-  vegetables: string[];
-  fruitsAndNuts: string[];
-  otherFoodProduction: string[];
   rainfall: number;
   averagePricePerSqm: number;
   buildingLicensePercent: number;
-  foodProduction: SubregionFoodProduction; // New field
+  foodProduction: SubregionFoodProduction;
 }
 
 export const subregionsData: Subregion[] = [
@@ -40,14 +38,12 @@ export const subregionsData: Subregion[] = [
     country: "Spain",
     region: "Southern Europe",
     landscape: ["Mountains", "Coastline", "Meadow"],
-    climate: ["Sufficient Sun", "Mild"],
-    energy: ["High Solar", "High Wind"], // Added High Wind for coastal areas
+    climate: ["Warm and sunny"],
+    gardens: ["Vegetables", "Food forest and fruit orchards", "Herbs and aromatics"],
+    otherFoodSources: ["Beekeeping"],
     description: `Hottest summers in Europe & mild winters. Get's really dry for long times, so one must to think strategically about water & irrigation resources. Historically, people have grown lots of olives here. It is an interesting region for hikes. You have both snowy mountains, some lush forests, deserts and beautiful beaches. In spring hills gets covered with lavander and poppy.
   
   Traditional white Spanish villages, lots of Flamenco and a really slow-paced life. White-stone houses, flat roofs. In big cities like Granada, Cordova, Sevilla you'll see a lot of ancient Moorish architecture.`,
-    vegetables: ["Tomatoes", "Peppers", "Eggplant", "Zucchini"],
-    fruitsAndNuts: ["Olives", "Citrus", "Almonds", "Pomegranates", "Avocados"],
-    otherFoodProduction: ["Honey"],
     rainfall: 400,
     averagePricePerSqm: 4,
     buildingLicensePercent: 15,
@@ -108,15 +104,13 @@ export const subregionsData: Subregion[] = [
     name: "Asturias",
     country: "Spain",
     region: "Southern Europe",
-    landscape: ["Mountains", "Forests", "Rivers", "Coastline"],
-    climate: ["Cloudy", "Mild"],
-    energy: ["High Wind", "Hydroelectric Potential"],
+    landscape: ["Mountains", "Forest", "Rivers", "Coastline"],
+    climate: ["Mild"],
+    gardens: ["Vegetables"],
+    otherFoodSources: ["Mushrooms and berries foraging", "Dairy"],
     description: `Fishing villages, green cliffs drop into the Atlantic. Lot's of beautiful hidden beaches, secluded coves. Lush ancient forests and high misty mountains. A paradise for outdoors enthusiasts and surfers. Many places have saved its authenticity because of lack of tourists, unlike other regions. Also, really affordable cities, especially compared to Madrid or Barcelona.
   
   Stone cottages & wooden barns designed to last long in a humid environment. Organic & natural ingredients is not a trend but a normality. Also great apple cider and cheese is produced here.`,
-    vegetables: ["Vegetables"],
-    fruitsAndNuts: ["Apples"],
-    otherFoodProduction: ["Dairy"],
     rainfall: 1100,
     averagePricePerSqm: 4,
     buildingLicensePercent: 11,
@@ -178,22 +172,12 @@ export const subregionsData: Subregion[] = [
     country: "Portugal",
     region: "Southern Europe",
     landscape: ["Coastline", "Meadow", "Rivers"],
-    climate: ["Sufficient Sun", "Mild"],
-    energy: ["High Solar", "High Wind"],
+    climate: ["Warm and sunny"],
+    gardens: ["Food forest and fruit orchards", "Herbs and aromatics"],
+    otherFoodSources: ["Beekeeping"],
     description: `Dramatic cliffs and golden beaches on south of Portugal. Lot's of festivals, organic markets and eco-communities. Higher in the mountains people hike in lush green forests & limestone formations, as well as and swim in natural springs.
   
   On the west is Costa Vicentina, which is a nice destination for surfers across Europe. Lagos and Tavira became popular destination for expats who got tired from Lisbon. Cafes and spaces for fast internet and affordable prices. Across the region there is a lot of permacultural projects and a place seems to be vibrant with community. Whitewashed houses with tiled roofs and Portuguese tiles.`,
-    vegetables: [],
-    fruitsAndNuts: [
-      "Citrus",
-      "Olives",
-      "Almonds",
-      "Figs",
-      "Avocados",
-      "Pomegranates",
-      "Grapes",
-    ],
-    otherFoodProduction: [],
     rainfall: 600,
     averagePricePerSqm: 6,
     buildingLicensePercent: 14,
@@ -254,13 +238,11 @@ export const subregionsData: Subregion[] = [
     name: "Northern Portugal",
     country: "Portugal",
     region: "Southern Europe",
-    landscape: ["Mountains", "Forests", "Rivers", "Meadow", "Lakes"],
-    climate: ["Cloudy", "Mild"],
-    energy: ["High Wind", "Hydroelectric Potential"],
+    landscape: ["Mountains", "Forest", "Rivers", "Meadow", "Lakes"],
+    climate: ["Mild"],
+    gardens: ["Vegetables", "Food forest and fruit orchards"],
+    otherFoodSources: ["Mushrooms and berries foraging"],
     description: `Green valleys, misty mountains, and old stone villages. Vineyards along the river produce Port wine. Small villages with cobblestone streets and local markets selling fresh dairy, chestnuts, and honey. There is a National Park with wild horses, oak forests, and waterfalls. Organic farms and permaculture projects are also growing here.`,
-    vegetables: ["Root Vegetables"],
-    fruitsAndNuts: ["Olives", "Grapes", "Apples", "Pears"],
-    otherFoodProduction: [],
     rainfall: 800,
     averagePricePerSqm: 6,
     buildingLicensePercent: 12,
@@ -322,21 +304,12 @@ export const subregionsData: Subregion[] = [
     country: "France",
     region: "Western Europe",
     landscape: ["Mountains", "Meadow", "Rivers", "Coastline", "Lakes"],
-    climate: ["Sufficient Sun", "Mild"],
-    energy: ["High Solar", "High Wind"], // Added both - mistral winds are famous here
+    climate: ["Warm and sunny"],
+    gardens: ["Food forest and fruit orchards", "Herbs and aromatics"],
+    otherFoodSources: ["Beekeeping"],
     description: `It's not just lavender fields, and olives. And village life is still very active here — many make press their own oil, bake the bread, locals drink espresso and read the newspaper in the morning. Stone walls help to keep out the summer heat, and small windows hold the warmth during winter. Younger people come here to learn to build and make things. Some create eco-farms, co-living spaces. It is also an active place that looks for volunteers. There are many places to stay for free at Workaway.
   
   Overall it's a very nice place, but kind of pricey.`,
-    vegetables: [],
-    fruitsAndNuts: [
-      "Olives",
-      "Grapes",
-      "Almonds",
-      "Figs",
-      "Apricots",
-      "Peaches",
-    ],
-    otherFoodProduction: [],
     rainfall: 700,
     averagePricePerSqm: 12,
     buildingLicensePercent: 15,
@@ -397,20 +370,12 @@ export const subregionsData: Subregion[] = [
     name: "Brittany",
     country: "France",
     region: "Western Europe",
-    landscape: ["Meadow", "Coastline", "Forests", "Rivers", "Lakes"],
-    climate: ["Cloudy", "Mild"],
-    energy: ["High Wind"], // Atlantic coast = strong winds
+    landscape: ["Meadow", "Coastline", "Forest", "Rivers", "Lakes"],
+    climate: ["Mild"],
+    gardens: ["Vegetables"],
+    otherFoodSources: ["Dairy", "Mushrooms and berries foraging"],
     description:
       "Brittany is a nice northwest coastline. It's quite harsh and raw, a bit wild & untamed here. Waves hit the jagged cliffs and epic lighthouses stand on top of them. No meditarian resorts for pussies, only fisherman huts, mythical forests, and old way of doing things. And huge boulders. Definitely not a place for everyone. But all this harshness gives a special nutrition value to the food that grows here.",
-    vegetables: [
-      "Cabbage",
-      "Artichokes",
-      "Cauliflower",
-      "Potatoes",
-      "Vegetables",
-    ],
-    fruitsAndNuts: [],
-    otherFoodProduction: ["Dairy"],
     rainfall: 1100,
     averagePricePerSqm: 6,
     buildingLicensePercent: 13,
@@ -471,14 +436,12 @@ export const subregionsData: Subregion[] = [
     name: "Bavaria",
     country: "Germany",
     region: "Western Europe",
-    landscape: ["Mountains", "Meadow", "Forests", "Lakes"],
-    climate: ["Sufficient Sun", "Cold Winters"],
-    energy: ["High Wind", "Hydroelectric Potential"], // Mountain winds + alpine hydro
+    landscape: ["Mountains", "Meadow", "Forest", "Lakes"],
+    climate: ["Season Change"],
+    gardens: ["Vegetables"],
+    otherFoodSources: ["Dairy", "Beekeeping", "Mushrooms and berries foraging"],
     description:
       "Picture Alps, crystal-clear lakes, highland forests and thick stone walls of the farmhouses in the valley. Peace and tranquility. It is a place where sustainability became integrated into local life long before it became trendy. It is place filled with deep respect for the nature and each other. Cold winters and mountain climate taught local communities to rely on themselves and design stable homestead systems. It will suit for those who find mountains to be a crystal-clear source of inspiration. The region also serves as a great source of inspiration of mature, well-designed living systems, often based on traditional crafts.",
-    vegetables: ["Root Vegetables", "Cabbage"],
-    fruitsAndNuts: ["Apples", "Berries"],
-    otherFoodProduction: ["Dairy", "Honey"],
     rainfall: 1800,
     averagePricePerSqm: 12,
     buildingLicensePercent: 12,
@@ -539,14 +502,12 @@ export const subregionsData: Subregion[] = [
     name: "Brandenburg",
     country: "Germany",
     region: "Western Europe",
-    landscape: ["Meadow", "Forests", "Rivers", "Lakes"],
-    climate: ["Cloudy", "Cold Winters"],
-    energy: ["High Wind"], // Flat lands = good wind
+    landscape: ["Meadow", "Forest", "Rivers", "Lakes"],
+    climate: ["Season Change"],
+    gardens: ["Vegetables"],
+    otherFoodSources: ["Mushrooms and berries foraging"],
     description:
       "First thing you need to know about this region — it is a place with a really cheap land. First it seems flat and empty, but with enough research one will discover just how many eco-hubs and permaculture projects are around here. It is a true playground for any homestead enthusiast or eco-entrepreneur. Young people go there to find & build communities. It is also pretty close to Berlin, so why don't give it a shot?",
-    vegetables: ["Vegetables"],
-    fruitsAndNuts: [],
-    otherFoodProduction: [],
     rainfall: 650,
     averagePricePerSqm: 4,
     buildingLicensePercent: 11,
@@ -607,14 +568,12 @@ export const subregionsData: Subregion[] = [
     name: "Carinthia",
     country: "Austria",
     region: "Central Europe",
-    landscape: ["Mountains", "Forests", "Lakes", "Meadow"],
-    climate: ["Sufficient Sun", "Cold Winters"],
-    energy: ["High Solar", "Hydroelectric Potential"],
+    landscape: ["Mountains", "Forest", "Lakes", "Meadow"],
+    climate: ["Season Change"],
+    gardens: ["Vegetables", "Food forest and fruit orchards"],
+    otherFoodSources: ["Dairy", "Mushrooms and berries foraging"],
     description:
       "This is a home to Sepp Holzer's Krameterhof — a high-altitude farm that is built on the principles of permaculture. It was a proof that well-designed regenerative systems can thrive and provide a lot of food even in Alpine terrain. The region is warmer than Bavaria, with diverse nature. You'll see deep-blue lakes, lush forests. Clear mountain streams in spring, so drought never happens in this place.",
-    vegetables: ["Root Vegetables", "Cabbage"],
-    fruitsAndNuts: ["Apples", "Pears", "Plums", "Berries"],
-    otherFoodProduction: ["Dairy"],
     rainfall: 1200,
     averagePricePerSqm: 10,
     buildingLicensePercent: 12,
@@ -675,14 +634,12 @@ export const subregionsData: Subregion[] = [
     name: "South Bohemia",
     country: "Czech Republic",
     region: "Central Europe",
-    landscape: ["Forests", "Lakes", "Meadow", "Rivers"],
-    climate: ["Cloudy", "Cold Winters"],
-    energy: ["High Wind"], // Moderate winds in open areas
+    landscape: ["Forest", "Lakes", "Meadow", "Rivers"],
+    climate: ["Season Change"],
+    gardens: ["Vegetables", "Food forest and fruit orchards"],
+    otherFoodSources: ["Dairy", "Mushrooms and berries foraging", "Poultry and livestock"],
     description:
       "The land of traditional craftsmanship and old-school living. People don't come here to launch yoga-eco-retreats — they come to buy a beautiful old farm to renovate it. No hype, no rush. Locals that respect people who contribute with skills, not personal brand. Villages are small, practical, and community-based.\n\nThis is a region of water and forest: lakes, rivers, ponds, even swamps. Forests are filled with edible mushrooms, wild herbs, and firewood. This gives extra reason to spend your morning in the forest instead of a fancy cafe.\n\nLocals still preserve food, dry apples, keep goats, and work with wood. Great place to learn traditional ways of getting the job done — simply, efficiently and through the craftsmanship.",
-    vegetables: ["Vegetables", "Root Vegetables", "Cabbage"],
-    fruitsAndNuts: ["Apples", "Plums", "Pears", "Berries"],
-    otherFoodProduction: ["Dairy"],
     rainfall: 900,
     averagePricePerSqm: 10,
     buildingLicensePercent: 11,
@@ -743,14 +700,12 @@ export const subregionsData: Subregion[] = [
     name: "Dalarna",
     country: "Sweden",
     region: "Northern Europe",
-    landscape: ["Forests", "Lakes", "Rivers"],
-    climate: ["Cold Winters"],
-    energy: [], // Limited renewable options in forested areas
+    landscape: ["Forest", "Lakes", "Rivers"],
+    climate: ["Season Change"],
+    gardens: ["Vegetables"],
+    otherFoodSources: ["Dairy", "Mushrooms and berries foraging"],
     description:
       "Dalarna is one of Sweden's most active regions for permaculture and back-to-the-land living. People come here to recover, rebuild, and do real things with their hands. It's quiet, vast, and slow. Lakes stretch for kilometers and pine forests surround you everywhere. Great region for winter fans and those who enjoy chopping the firewood.",
-    vegetables: ["Root Vegetables", "Cabbage"],
-    fruitsAndNuts: ["Berries"],
-    otherFoodProduction: ["Dairy"],
     rainfall: 850,
     averagePricePerSqm: 12,
     buildingLicensePercent: 12,

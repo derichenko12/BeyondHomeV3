@@ -53,12 +53,10 @@ export default function SubregionSelection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {subregions.map((subregion) => {
           const matchingTags = [
-            ...subregion.vegetables,
-            ...subregion.fruitsAndNuts,
-            ...subregion.otherFoodProduction,
-            ...subregion.climate,
             ...subregion.landscape,
-            ...subregion.energy,
+            ...subregion.climate,
+            ...subregion.gardens,
+            ...subregion.otherFoodSources,
           ].filter((tag) => selectedTags.includes(tag)).length;
 
           const imagePath = regionImages[subregion.id] || "/regions/andalusia.png";
