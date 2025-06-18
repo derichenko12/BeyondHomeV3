@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import TagSelector from "./TagSelector";
 import { subregionsData, Subregion } from "./subregionsData";
 import SubregionSelection from "./SubregionSelection";
-import LandSizeSlider from "./LandSizeSelection";
-import LivingSpaceSelection from "./LivingSpaceSelection";
+import CombinedLandHomeSelection from "./CombinedLandHomeSelection";
 import FoodProductionSelection from "./FoodProductionSelection";
 import SimpleResourceSelection, { SelectedResourceData } from "./SimpleResourceSelection";
 import CreativeSpaceSelection, { CreativeSpace } from "./CreativeSpaceSelection";
@@ -22,8 +21,8 @@ type StepType =
   | "welcome"
   | "tags"
   | "subregions"
-  | "land"
-  | "living"
+  | "family"
+  | "land-and-home"
   | "food"
   | "resources"
   | "creative"
@@ -41,7 +40,7 @@ export default function OffGridCJM() {
   const [selectedSubregion, setSelectedSubregion] = useState<string | null>(
     null
   );
-  const [familySize, setFamilySize] = useState<number>(2); // Default to 2
+  const [familySize, setFamilySize] = useState<number>(2);
   const [landArea, setLandArea] = useState<number>(5000); // m²
   const [landPrice, setLandPrice] = useState<number>(0);
   const [homeArea, setHomeArea] = useState<number>(0);
@@ -82,12 +81,15 @@ export default function OffGridCJM() {
             subtitle=""
           />
 
-<div className="space-y-6 max-w-3xl mx-auto">
-  <p className="text-[10px] font-mono leading-relaxed text-gray-700">
-    A tool for planning a self-sufficient Homestead. Find out the real
-    cost in terms of money, time and effort.
-  </p>
-</div>
+          <div className="space-y-6 max-w-3xl mx-auto">
+            <p className="text-[10px] font-mono leading-relaxed text-gray-700">
+              The core issue with the mainstream living system is not merely economic, but existential. We live in a system designed for efficiency, not well-being. It rewards speed over depth, profit over care, and constant growth over balance. As a result, many of us are getting exhausted — working more to afford less, disconnected from the outside world, from community, and often from ourselves. Housing is unaffordable. Food is industrial. Time feels owned by someone else. The mainstream model tells us that freedom is access — to services, to markets, to brands and to endless options — but rarely to meaning, or to the guilt-free luxury of doing nothing.
+            </p>
+            
+            <p className="text-[10px] font-mono leading-relaxed text-gray-700">
+              This project begins where that system ends. It's about reclaiming the basics — food, shelter, energy, time — not as survival, but as a foundation for a different kind of life system. A slower, wiser, more creative life. One that doesn't depend on escape, but on getting yourself together and rebuilding from the ground up. For those who feel disconnected in consumption. For seekers longing for clarity and reconnection, for families searching for a more rooted and self-determined way to raise their children, for creatives burned out by speed and disconnected from craft, for digital nomads craving stillness after years of movement, and for those who work with their hands and want their skills to be part of something lasting. It's for anyone ready to shift from surviving to shaping — to design a system that feels right. A freedom that makes sense just for you.
+            </p>
+          </div>
 
           <div className="text-center mt-12">
             <Button onClick={() => setStep("tags")}>Begin your journey</Button>
@@ -113,19 +115,21 @@ export default function OffGridCJM() {
   }
 
   if (step === "subregions") {
-    const scoredSubregions: (Subregion & { score: number })[] =
-      subregionsData.map((subregion) => {
-        const regionTags = [
-          ...subregion.landscape,
-          ...subregion.climate,
-          ...subregion.gardens,
-          ...subregion.otherFoodSources,
-        ];
-        const score = regionTags.filter((tag) =>
-          selectedTags.includes(tag)
-        ).length;
-        return { ...subregion, score };
-      });
+    // Safe mapping with default empty arrays
+    const scoredSubregions = subregionsData.map((subregion) => {
+      const allTags = [
+        ...(subregion.vegetables || []),
+        ...(subregion.fruitsAndNuts || []),
+        ...(subregion.otherFoodProduction || []),
+        ...(subregion.climate || []),
+        ...(subregion.landscape || []),
+        ...(subregion.energy || []),
+      ];
+      const score = allTags.filter((tag) =>
+        selectedTags.includes(tag)
+      ).length;
+      return { ...subregion, score };
+    });
 
     const sortedSubregions = scoredSubregions.sort((a, b) => b.score - a.score);
 
@@ -138,65 +142,47 @@ export default function OffGridCJM() {
           selectedSubregion={selectedSubregion}
           onSelect={setSelectedSubregion}
           onContinue={() => {
-            if (selectedSubregion) {
-              setLandArea(5000); // Default land area
-              setStep("land");
-            }
+            if (selectedSubregion) setStep("family");
           }}
         />
       </>
     );
   }
 
-  if (step === "land") {
-    const subregion = subregionsData.find((r) => r.id === selectedSubregion);
-    if (!subregion) return null;
-
+  if (step === "family") {
     return (
       <>
         {renderCart()}
-        <LandSizeSlider
-          subregion={subregion}
-          familySize={familySize}
-          onContinue={(areaM2) => {
-            setLandArea(areaM2);
-            const price = Math.round(areaM2 * subregion.averagePricePerSqm);
-            setLandPrice(price);
-            const newCartItems: CartItem[] = [
-              {
-                label: `Land (${(areaM2 / 10000).toFixed(1)} ha)`,
-                value: price,
-                type: "money",
-              },
-            ];
-            stableUpdateCart(newCartItems);
-            setStep("living");
+        <FamilySizeSelection
+          onContinue={(size) => {
+            setFamilySize(size);
+            setStep("land-and-home");
           }}
           onBack={() => setStep("subregions")}
-          onUpdateCart={stableUpdateCart}
         />
       </>
     );
   }
 
-  if (step === "living") {
+  if (step === "land-and-home") {
     const subregion = subregionsData.find((r) => r.id === selectedSubregion);
     if (!subregion) return null;
 
     return (
       <>
         {renderCart()}
-        <LivingSpaceSelection
+        <CombinedLandHomeSelection
           subregion={subregion}
-          landArea={landArea}
-          landPrice={landPrice}
-          onContinue={(totalHomeCost, area) => {
-            setHomeArea(area);
-            const hectares = (landArea / 10000).toFixed(1);
+          familySize={familySize}
+          onContinue={(areaM2, landPriceValue, totalHomeCost, homeAreaValue) => {
+            setLandArea(areaM2);
+            setLandPrice(landPriceValue);
+            setHomeArea(homeAreaValue);
+            const hectares = (areaM2 / 10000).toFixed(1);
             const newBaseItems: CartItem[] = [
               {
                 label: `Land (${hectares} ha)`,
-                value: landPrice,
+                value: landPriceValue,
                 type: "money",
               },
               { label: "Home & License", value: totalHomeCost, type: "money" },
@@ -205,7 +191,7 @@ export default function OffGridCJM() {
             setStep("food");
           }}
           onUpdateCart={stableUpdateCart}
-          onBack={() => setStep("land")}
+          onBack={() => setStep("family")}
         />
       </>
     );
@@ -225,12 +211,12 @@ export default function OffGridCJM() {
           familySize={familySize}
           onContinue={(systems) => {
             setSelectedFoodSystems(systems);
-            // Сохраняем текущее состояние корзины как базовое для следующего шага
+            // Save current cart state as base for next step
             setBaseCartItems([...cartItems]);
             setStep("resources");
           }}
           onUpdateCart={stableUpdateCart}
-          onBack={() => setStep("living")}
+          onBack={() => setStep("land-and-home")}
           existingCartItems={baseCartItems}
         />
       </>
@@ -250,7 +236,7 @@ export default function OffGridCJM() {
           familySize={familySize}
           onContinue={(resources) => {
             setSelectedResources(resources);
-            // Сохраняем текущее состояние корзины для следующего шага
+            // Save current cart state for next step
             setBaseCartItems([...cartItems]);
             setStep("creative");
           }}
@@ -291,8 +277,6 @@ export default function OffGridCJM() {
     );
 
     const total = moneyItems.reduce((sum, item) => sum + item.value, 0);
-    const financialCushion = Math.round(total * 0.3);
-    const totalWithCushion = total + financialCushion;
     const totalAvgTime = avgTimeItems.reduce(
       (sum, item) => sum + item.value,
       0

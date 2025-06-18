@@ -269,15 +269,15 @@ export const SummaryBox: React.FC<SummaryBoxProps> = ({ title, children }) => {
 };
 
 // ========================
-// STEPS
+// STEPS - Updated for combined land & home step
 // ========================
 
 export const STEPS = {
   WELCOME: { number: 1, label: "Welcome", total: 9 },
   TAGS: { number: 2, label: "Preferences", total: 9 },
   SUBREGIONS: { number: 3, label: "Location", total: 9 },
-  LAND: { number: 4, label: "Land", total: 9 },
-  LIVING: { number: 5, label: "Living Space", total: 9 },
+  FAMILY: { number: 4, label: "Family Size", total: 9 },
+  LAND_AND_HOME: { number: 5, label: "Land & Home", total: 9 },
   FOOD: { number: 6, label: "Food Production", total: 9 },
   RESOURCES: { number: 7, label: "Resources", total: 9 },
   CREATIVE: { number: 8, label: "Creative Space", total: 9 },
