@@ -273,14 +273,13 @@ export const SummaryBox: React.FC<SummaryBoxProps> = ({ title, children }) => {
 // ========================
 
 export const STEPS = {
-  WELCOME: { number: 1, label: "Welcome", total: 10 },
-  TAGS: { number: 2, label: "Preferences", total: 10 },
-  SUBREGIONS: { number: 3, label: "Location", total: 10 },
-  FAMILY: { number: 4, label: "Family Size", total: 10 },
-  LAND: { number: 5, label: "Land", total: 10 },
-  LIVING: { number: 6, label: "Living Space", total: 10 },
-  FOOD: { number: 7, label: "Food Production", total: 10 },
-  RESOURCES: { number: 8, label: "Resources", total: 10 },
-  CREATIVE: { number: 9, label: "Creative Space", total: 10 },
-  RECEIPT: { number: 10, label: "Summary", total: 10 },
+  WELCOME: { number: 1, label: "Welcome", total: 9 },
+  TAGS: { number: 2, label: "Preferences", total: 9 },
+  SUBREGIONS: { number: 3, label: "Location", total: 9 },
+  LAND: { number: 4, label: "Land", total: 9 },
+  LIVING: { number: 5, label: "Living Space", total: 9 },
+  FOOD: { number: 6, label: "Food Production", total: 9 },
+  RESOURCES: { number: 7, label: "Resources", total: 9 },
+  CREATIVE: { number: 8, label: "Creative Space", total: 9 },
+  RECEIPT: { number: 9, label: "Summary", total: 9 },
 } as const;

@@ -96,115 +96,69 @@ export default function SubregionSelection({
                   {subregion.description}
                 </p>
 
-                <div className="space-y-1 text-[10px] font-mono text-gray-500">
-                  <p>
-                    <strong>REGION:</strong>{" "}
-                    <span className="text-gray-600">{subregion.region}</span>
-                  </p>
-                  <p>
-                    <strong>CLIMATE:</strong>{" "}
-                    {subregion.climate?.map((c) => (
-                      <span
-                        key={c}
-                        className={`mr-1 ${
-                          selectedTags.includes(c)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </p>
+                <div className="space-y-3 text-[10px] font-mono">
+                  <div className="flex items-start gap-3">
+                    <span className="text-gray-500 font-medium min-w-[90px]">CLIMATE:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {subregion.climate?.map((c) => (
+                        <span
+                          key={c}
+                          className={`px-3 py-1 border rounded-full ${
+                            selectedTags.includes(c)
+                              ? "border-black bg-gray-100 text-black font-medium"
+                              : "border-gray-300 text-gray-600"
+                          }`}
+                        >
+                          {c.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-                  <p>
-                    <strong>LANDSCAPE:</strong>{" "}
-                    {subregion.landscape?.map((l) => (
-                      <span
-                        key={l}
-                        className={`mr-1 ${
-                          selectedTags.includes(l)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {l}
-                      </span>
-                    ))}
-                  </p>
+                  <div className="flex items-start gap-3">
+                    <span className="text-gray-500 font-medium min-w-[90px]">LANDSCAPE:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {subregion.landscape?.map((l) => (
+                        <span
+                          key={l}
+                          className={`px-3 py-1 border rounded-full ${
+                            selectedTags.includes(l)
+                              ? "border-black bg-gray-100 text-black font-medium"
+                              : "border-gray-300 text-gray-600"
+                          }`}
+                        >
+                          {l.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-                  <p>
-                    <strong>ENERGY:</strong>{" "}
-                    {subregion.energy?.map((e) => (
-                      <span
-                        key={e}
-                        className={`mr-1 ${
-                          selectedTags.includes(e)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {e}
-                      </span>
-                    ))}
-                  </p>
+                  <div className="flex items-start gap-3">
+                    <span className="text-gray-500 font-medium min-w-[90px]">PERFECT FOR:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {[...subregion.gardens, ...subregion.otherFoodSources].map((item) => (
+                        <span
+                          key={item}
+                          className={`px-3 py-1 border rounded-full ${
+                            selectedTags.includes(item)
+                              ? "border-black bg-gray-100 text-black font-medium"
+                              : "border-gray-300 text-gray-600"
+                          }`}
+                        >
+                          {item.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-                  <p>
-                    <strong>VEGETABLES:</strong>{" "}
-                    {subregion.vegetables?.map((v) => (
-                      <span
-                        key={v}
-                        className={`mr-1 ${
-                          selectedTags.includes(v)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {v}
-                      </span>
-                    ))}
-                  </p>
-
-                  <p>
-                    <strong>FRUITS & NUTS:</strong>{" "}
-                    {subregion.fruitsAndNuts?.map((f) => (
-                      <span
-                        key={f}
-                        className={`mr-1 ${
-                          selectedTags.includes(f)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {f}
-                      </span>
-                    ))}
-                  </p>
-
-                  <p>
-                    <strong>OTHER FOOD:</strong>{" "}
-                    {subregion.otherFoodProduction?.map((o) => (
-                      <span
-                        key={o}
-                        className={`mr-1 ${
-                          selectedTags.includes(o)
-                            ? "text-black font-bold"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {o}
-                      </span>
-                    ))}
-                  </p>
+                  <div className="flex items-start gap-3 pt-2">
+                    <span className="text-gray-500 font-medium min-w-[90px]">LAND PRICE:</span>
+                    <span className="text-gray-600">€{subregion.averagePricePerSqm} / M²</span>
+                  </div>
                 </div>
 
-                <p className="text-[10px] font-mono text-gray-400 mt-2">
-                  <strong>RAINFALL:</strong> {subregion.rainfall} mm/year —
-                  <strong> LAND:</strong> €{subregion.averagePricePerSqm} / m²
-                </p>
-
                 {selectedSubregion === subregion.id && (
-                  <div className="mt-4">
+                  <div className="mt-6">
                     <Button
                       onClick={(e) => {
                         if (e) e.stopPropagation();
@@ -212,7 +166,7 @@ export default function SubregionSelection({
                       }}
                       fullWidth
                     >
-                      CONTINUE WITH {subregion.name.toUpperCase()}
+                      CHOOSE {subregion.name.toUpperCase()}
                     </Button>
                   </div>
                 )}
