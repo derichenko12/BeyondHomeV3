@@ -28,7 +28,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   stepLabel,
 }) => {
   return (
-    <div className="flex justify-between items-center py-8 border-b border-black" style={{ borderWidth: '0.5px' }}>
+    <div className="flex justify-between items-center py-8">
       <div className="flex space-x-1">
         {Array.from({ length: totalSteps }).map((_, index) => (
           <div
